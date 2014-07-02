@@ -1,0 +1,17 @@
+Include "MapBasic.Def"
+Include "Lam.MbUtils.def"
+
+Declare Sub Main
+
+
+Sub Main
+
+Set Window Message Position (2, 1) Width 3 Height 5
+Print Chr$(12)
+Print "Starting..."
+
+
+
+
+
+End Sub
