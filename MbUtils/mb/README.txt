@@ -163,7 +163,7 @@ KillOpenTable() Sub
 
 ListFiles() Sub
 
-	Purpose: Get a list of all files (file names only, not full paths) in a specified folder, excluding subfolders
+	Purpose: Get a list of all files (file name + extension only, not full path) in a specified folder, excluding subfolders
 	Parameters: (ByVal path As String, files() As String)
 		    [full path of the folder to search, 
 		     an array (passed by ref) to be populated with the list of file names]
