@@ -47,7 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="mb\MbUtils.def" />
-    <Content Include="mb\README.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="mb\MbUtils.mb" />

@@ -50,6 +50,31 @@ GetUserName() Function
 		'String variable declared in MbUtils.def
 		
 		userName = GetUserName()	'userName is now visible in all modules
+
+Note2() Function
+		
+		Purpose: Provides an enhanced message box, adding several options to the default "Note" statement
+		Parameters: (ByVal dialogTitle As String, ByVal messageText As String, iconButtons As Integer)
+			        [message box title, message to display, icon and button set to display]
+					iconButtons parameter values: MB_OK, MB_OKCANCEL, MB_ABORTRETRYIGNORE, MB_YESNOCANCEL, MB_YESNO, MB_RETRYCANCEL,
+												  MB_ICONHAND, MB_ICONSTOP, MB_ICONQUESTION, MB_ICONEXCLAMATION, MB_ICONASTERISK, MB_ICONINFORMATION
+		Reutn value: String [the button the user selected] returns: ok, cancel, abort, retry, ignore, yes, no
+		Example:
+			
+			Dim dialogParam As Integer
+			diaLogParam = MB_ABORTRETRYIGNORE + MB_ICONINFORMATION
+
+			Dim result As String
+			result = Note2("My Application", "Critical failure. Abort, retry, ignore?", dialogParam)
+
+			Do Case result
+				Case "abort"
+					Exit Sub
+				Case "retry"
+					Call Foo()
+				Case "ignore"
+					Call Bar()
+			End Case
 	
 PauseProgram() Sub
 
@@ -65,7 +90,7 @@ PauseProgram() Sub
 
 ReplaceInString() Function
 
-	Purpose: 
+	Purpose: Replace a substring with another string, from within a string
 	Parameters: (ByVal fullString As String, ByVal removeString As String, ByVal replacementString As String)
 		    [the original string, the string to search for and remove, the string to replace remoteString in fullString]
 	Return value: string [string with the specified values replaced]
@@ -74,6 +99,15 @@ ReplaceInString() Function
 		Dim s, sNew As String
 		s = "The car is red."
 		sNew = ReplaceInString()
+
+WindowRemoveCloseButton()
+
+	Purpose: Remove the close [X] button on a custon dialog box
+	Parameters: (ByVal winId As Integer) [the window ID of dialog to modfiy]
+	Return value: none
+	Example:
+
+		Call WindowRemoveCloseButton(FrontWindow())
 
 +----------------------------- File I/O utils -------------------------------+
 
@@ -112,7 +146,7 @@ DeleteFolder() Sub
 	Return value: none
 	Example:
 	
-		Call eleteFolder("C:\Projects\Master\temp_sites")
+		Call DeleteFolder("C:\Projects\Master\temp_sites")
 
 DoesFileExist() Function
 

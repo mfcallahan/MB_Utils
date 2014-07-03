@@ -19,21 +19,14 @@ Declare Method _DumpException Class "MbUtils.Logger" Lib "MbUtils.dll" (ByVal di
 
 Declare Method _Sleep Class "MbUtils.GenUtils" Lib "MbUtils.dll" (ByVal t As Integer, errStr As String)
 
-'Windows API functions - these do not need to be included or declared outside this file
-Declare Function GetUserNameWin Lib "advapi32.dll" Alias "GetUserNameA" (lpBuffer As String, nSize As Integer) As Integer
-
-'---------------------------------------------------------------------
-
-Sub ListOpenTables(openTables() As String)
-
-ReDim openTables(NumTables())
-
-Dim i As Integer
-For i = 1 To NumTables()
-	openTables(i) = TableInfo(i, TAB_INFO_NAME)
-Next
-
-End Sub
+'Win32 API functions - these do not need to be included or declared outside this file
+Declare Function _GetUserNameWin Lib "advapi32.dll" Alias "GetUserNameA" (lpBuffer As String, nSize As Integer) As Integer
+Declare Function _GetSystemMenu Lib "user32" Alias "GetSystemMenu" (ByVal hwnd As Integer, ByVal bRevert As Integer) As Integer
+Declare Function _DrawMenuBar Lib "user32" Alias "DrawMenuBar" (ByVal hwnd As Integer) As Integer
+Declare Function _DeleteMenu Lib "user32" Alias "DeleteMenu" (ByVal hMenu As Integer, ByVal nPosition As Integer, ByVal wFlags As Integer) As Integer
+Declare Function _GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Integer, ByVal nIndex As Integer) As Integer
+Declare Function _SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hwnd As Integer, ByVal nIndex As Integer, ByVal dwNewLong As Integer) As Integer
+Declare Function _MessageBox Lib "user32" Alias "MessageBoxA" (ByVal hwnd As Integer, ByVal lpText As String, ByVal lpCaption As String, ByVal wType As Integer) As Integer
 
 '---------------------------------------------------------------------
 
@@ -46,22 +39,6 @@ Call _CreateFolder(fullPath, errStr)
 
 If errStr <> "" Then
 	Note "Error creating folder (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
-	Call _DumpException(ApplicationDirectory$(), errStr)
-End If
-
-End Sub
-
-'---------------------------------------------------------------------
-
-Sub DeleteFolder(ByVal fullPath As String)
-
-Dim errStr As String
-errStr = ""
-
-Call _DeleteFolder(fullPath, errStr)
-
-If errStr <> "" Then
-	Note "Error deleting folder (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
 	Call _DumpException(ApplicationDirectory$(), errStr)
 End If
 
@@ -84,6 +61,22 @@ End If
 End Sub
 
 '--------------------------------------------------------------------
+
+Sub DeleteFolder(ByVal fullPath As String)
+
+Dim errStr As String
+errStr = ""
+
+Call _DeleteFolder(fullPath, errStr)
+
+If errStr <> "" Then
+	Note "Error deleting folder (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
+	Call _DumpException(ApplicationDirectory$(), errStr)
+End If
+
+End Sub
+
+'---------------------------------------------------------------------
 
 Sub KillOpenTable(ByVal tableName As String)
 
@@ -148,6 +141,19 @@ End Sub
 
 '---------------------------------------------------------------------
 
+Sub ListOpenTables(openTables() As String)
+
+ReDim openTables(NumTables())
+
+Dim i As Integer
+For i = 1 To NumTables()
+	openTables(i) = TableInfo(i, TAB_INFO_NAME)
+Next
+
+End Sub
+
+'---------------------------------------------------------------------
+
 Sub PauseProgram(ByVal seconds As Integer)
 
 Dim errStr As String
@@ -159,6 +165,33 @@ If errStr <> "" Then
 	Note "Error pausing program (MbUtils.mbo, MbUtils.dll): " + Chr$(13) +Chr$(13) + errStr
 	Call _DumpException(ApplicationDirectory$(), errStr)
 End If
+
+End Sub
+
+'---------------------------------------------------------------------
+
+Sub WindowRemoveCloseButton(ByVal winId As Integer)
+
+Define MF_BYCOMMAND &H1024
+Define GWL_STYLE -16
+
+Dim hMenuHandle as Integer
+Dim hWnd as Integer
+Dim RC as Integer
+Dim L as Integer
+
+hWnd = WindowInfo(winId,WIN_INFO_WND)
+hMenuHandle = _GetSystemMenu(hWnd, False)
+If (hMenuHandle <> 0) Then
+  'removes CLOSE for SysMenu & disables "X"
+  RC = _DeleteMenu(hMenuHandle, SC_CLOSE, MF_BYCOMMAND)  
+  'set the new style
+  L = _SetWindowLong(hWnd, GWL_STYLE, L)
+  'force a "redraw"
+  RC = _DrawMenuBar(hWnd)
+  
+End If
+
 
 End Sub
 
@@ -197,30 +230,6 @@ End Function
 
 '---------------------------------------------------------------------
 
-Function IsTableOpen(ByVal tableName As String) As Logical
-
-Dim result As Logical
-result = False
-
-If NumTables() = 0 Then	
-	Goto return
-End If
-
-Dim i As Integer
-For i = 1 to NumTables()
-	If TableInfo(i, TAB_INFO_NAME) = tableName Then
-		result = True
-		Goto return
-	End If
-Next
-
-return:
-IsTableOpen = result
-
-End Function
-
-'---------------------------------------------------------------------
-
 Function DoesFileExist(ByVal fullFilePath As String) As Logical
 
 DoesFileExist = _DoesFileExist(fullFilePath)
@@ -245,9 +254,73 @@ Dim nSize, nLeng As Integer
 
 nSize = 255
 userName = Space$(nSize)
-nLeng = GetUserNameWin(userName, nSize)
+nLeng = _GetUserNameWin(userName, nSize)
 
 GetUserName = userName
+
+End Function
+
+'---------------------------------------------------------------------
+
+Function IsTableOpen(ByVal tableName As String) As Logical
+
+Dim result As Logical
+result = False
+
+If NumTables() = 0 Then	
+	Goto return
+End If
+
+Dim i As Integer
+For i = 1 to NumTables()
+	If TableInfo(i, TAB_INFO_NAME) = tableName Then
+		result = True
+		Goto return
+	End If
+Next
+
+return:
+IsTableOpen = result
+
+End Function
+
+'---------------------------------------------------------------------
+
+Function Note2(ByVal dialogTitle As String, ByVal messageText As String, iconButtons As Integer) As String
+
+' hWnd handle of the Parent Window - should be MapInfo
+' lptext message text
+' lpCaption dialog title
+' wType style flags
+' RETURNS:
+' 1 = OK
+' 2 = CANCEL
+' 3 = ABORT
+' 4 = RETRY
+' 5 = IGNORE
+' 6 = YES
+' 7 = NO
+' NOTE: Set hWnd to 0 [zero]
+
+Dim i as integer
+i = _MessageBox(0, messageText, dialogTitle, iconButtons)
+
+Do Case i
+	Case 1
+		Note2 = "ok"
+	Case 2
+		Note2 = "cancel"
+	Case 3
+		Note2 = "abort"
+	Case 4
+		Note2 = "retry"
+	Case 5
+		Note2 = "ignore"
+	Case 6
+		Note2 = "yes"
+	Case 7
+		Note2 = "no"
+End Case
 
 End Function
 

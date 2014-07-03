@@ -74,7 +74,7 @@ namespace MbUtils
 
 				for(int i = 0; i < numFiles; i++)
 				{
-					files[i] = Path.GetFileName(Path.GetDirectoryName(dirFiles[i]));
+					files[i] = Path.GetFileName(dirFiles[i]);
 				}
 			}
 			catch (Exception ex)
@@ -97,7 +97,8 @@ namespace MbUtils
 
 				for (int i = 0; i < numFolders; i++)
 				{
-					folders[i] = Path.GetDirectoryName(dirs[i]);
+					DirectoryInfo di = new DirectoryInfo(dirs[i]);
+					folders[i] = di.Name;
 				}
 			}
 			catch (Exception ex)

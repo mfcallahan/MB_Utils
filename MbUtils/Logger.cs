@@ -9,7 +9,7 @@ namespace MbUtils
 		{
 			try
 			{
-				using (StreamWriter sw = new StreamWriter(logFilePath))
+				using (StreamWriter sw = new StreamWriter(logFilePath, true))
 				{
 					sw.WriteLine(logMsg);
 				}
@@ -35,7 +35,7 @@ namespace MbUtils
 
 		private static string CleanExceptionDumpFiles()
 		{
-			
+			return null;
 		}
 		
 

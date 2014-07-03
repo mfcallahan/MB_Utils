@@ -2,15 +2,56 @@ Include "MapBasic.Def"
 Include "MbUtils.def"
 
 Declare Sub Main
+Declare Sub DialogHandler
 
+
+'--------------------------------------------------
+
+Sub DialogHandler
+
+Call WindowRemoveCloseButton(FrontWindow())
+
+End Sub
+
+'--------------------------------------------------
 
 Sub Main
+
+Dim savePath As String
+savePath = BrowseForFolder("C:\")
 
 
 Set Window Message Position (2, 1) Width 3 Height 5
 Print Chr$(12)
 
 Dim i As Integer
+
+
+Dim dialogParam As Integer
+diaLogParam = MB_ABORTRETRYIGNORE + MB_ICONSTOP
+
+Dim result As String
+result = Note2("My Application", "Critical failure. Abort, retry, ignore?", dialogParam)
+
+Print "You clicked " + result
+
+
+'--------------------------------------------------
+
+
+Print "WindowRemoveCloseButton() test"
+
+Dialog
+	Title "Testing 1, 2, 3..."
+	Width 100 Height 100
+	Calling DialogHandler
+Control OKButton
+Control CancelButton
+
+If CommandInfo(CMD_INFO_DLG_OK) Then
+	Note "You clicked OK"
+End If
+
 
 
 '--------------------------------------------------
@@ -95,6 +136,7 @@ Print ""
 Print ""
 Print ""
 
+END PROGRAM
 
 '--------------------------------------------------
 
