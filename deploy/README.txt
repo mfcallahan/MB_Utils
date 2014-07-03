@@ -250,7 +250,6 @@ WriteToLogFile() Sub
 			DeleteLogFile(logFile)
 		End If
 
-		CreateLogFile(logFile)
 		Call Foo()
 		Call WriteToLogFile(logFile), "foo complete.")
 		Call Bar()
