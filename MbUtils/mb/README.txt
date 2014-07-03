@@ -94,7 +94,7 @@ CreateFolder() Sub
 	Return value: none
 	Example:
 	
-		CreateFolder("C:\Projects\Master\temp_sites")
+		Call CreateFolder("C:\Projects\Master\temp_sites")
 
 DeleteFile() Sub
 
@@ -103,7 +103,7 @@ DeleteFile() Sub
 	Return value: none
 	Example:
 	
-		DeleteFile("C:\Projects\temp\log.txt")
+		Call DeleteFile("C:\Projects\temp\log.txt")
 
 DeleteFolder() Sub
 
@@ -112,7 +112,7 @@ DeleteFolder() Sub
 	Return value: none
 	Example:
 	
-		DeleteFolder("C:\Projects\Master\temp_sites")
+		Call eleteFolder("C:\Projects\Master\temp_sites")
 
 DoesFileExist() Function
 
@@ -121,8 +121,8 @@ DoesFileExist() Function
 	Return value: Logical [True if the file does exist]
 	Example:
 	
-		If DoesFileExist("C:\Projects\Master\Sites2.tab") Then
-			Open Table "C:\Projects\Master\Sites2.tab" As tempTable
+		If DoesFileExist("C:\Projects\Master\Sites2.txt") Then
+			Open Table "C:\Projects\Master\Sites2.txt" As tempTable
 		End If
 
 DoesFolderExist() Function
@@ -133,7 +133,7 @@ DoesFolderExist() Function
 	Example:
 	
 		If Not DoesFolderExist("C:\Projects\Master\maps") Then
-			CreateFolder("C:\Projects\Master\maps")
+			Call CreateFolder("C:\Projects\Master\maps")
 		End If
 		
 IsTableOpen() Function
@@ -154,7 +154,7 @@ KillOpenTable() Sub
 	Return value: none
 	Example:
 	
-		KillOpenTable("Sites1")
+		Call KillOpenTable("Sites1")
 
 		*any files of the same name with these extensions:
 		.tab, .dat, .ind, .map, .id, .tda, .tin, .tma, .xls, .xlsx,
@@ -171,7 +171,7 @@ ListFiles() Sub
 	Example:
 	
 		Dim projectFiles() As String
-		ListFiles("C:\Projects\Master", projectFiles())
+		Call ListFiles("C:\Projects\Master", projectFiles())
 
 		'print all the files in specified folder
 		Dim i As Integer
@@ -189,7 +189,7 @@ ListFolders() Sub
 	Example:
 	
 		Dim projectFolders() As String
-		ListFiles("C:\Projects", projectFolders())
+		Call ListFolders("C:\Projects", projectFolders())
 
 		'print all the subfolders in the specified folder
 		Dim i As Integer
@@ -218,9 +218,9 @@ WriteToLogFile() Sub
 
 		CreateLogFile(logFile)
 		Call Foo()
-		WriteToLogFile(logFile), "foo complete.")
+		Call WriteToLogFile(logFile), "foo complete.")
 		Call Bar()
-		WriteToLogFile(logFile), "bar complete.")
+		Call WriteToLogFile(logFile), "bar complete.")
 
 +--------------------------------- Global vars -------------------------------+
 
