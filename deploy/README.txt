@@ -55,9 +55,10 @@ Note2() Function
 		
 	Purpose: Provides an enhanced message box, adding several options to the default "Note" statement
 	Parameters: (ByVal dialogTitle As String, ByVal messageText As String, iconButtons As Integer)
-		        [message box title, message to display, icon and button set to display]
-				iconButtons parameter values: MB_OK, MB_OKCANCEL, MB_ABORTRETRYIGNORE, MB_YESNOCANCEL, MB_YESNO, MB_RETRYCANCEL,
-											  MB_ICONHAND, MB_ICONSTOP, MB_ICONQUESTION, MB_ICONEXCLAMATION, MB_ICONASTERISK, MB_ICONINFORMATION
+		    [message box title, message to display, icon and button set to display]
+		    iconButtons parameter values: MB_OK, MB_OKCANCEL, MB_ABORTRETRYIGNORE, MB_YESNOCANCEL,
+		    MB_YESNO, MB_RETRYCANCEL, MB_ICONHAND, MB_ICONSTOP, MB_ICONQUESTION, MB_ICONEXCLAMATION,
+		    MB_ICONASTERISK, MB_ICONINFORMATION
 	Reutn value: String [the button the user selected] returns: ok, cancel, abort, retry, ignore, yes, no
 	Example:
 		
