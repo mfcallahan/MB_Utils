@@ -2,7 +2,7 @@
 using System.IO;
 using System.Windows.Forms;
 
-namespace Lam.MbUtils
+namespace MbUtils
 {
 	public class GenUtils
     {

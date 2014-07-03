@@ -7,8 +7,8 @@
     <ProjectGuid>{1D2B2E7A-0F93-475D-A2E0-9B692A797DBF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Lam.MbUtils</RootNamespace>
-    <AssemblyName>Lam.MbUtils</AssemblyName>
+    <RootNamespace>MbUtils</RootNamespace>
+    <AssemblyName>MbUtils</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -44,6 +44,14 @@
     <Compile Include="Logger.cs" />
     <Compile Include="GenUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="mb\MbUtils.def" />
+    <Content Include="mb\README.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="mb\MbUtils.mb" />
+    <None Include="mb\MbUtils.tests.mb" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

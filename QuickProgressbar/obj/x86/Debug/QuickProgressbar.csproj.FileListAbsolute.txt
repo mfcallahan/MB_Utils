@@ -1,0 +1,8 @@
+B:\MattC\GitHub\MB_Utils\QuickProgressbar\bin\Debug\gc_prog.exe
+B:\MattC\GitHub\MB_Utils\QuickProgressbar\bin\Debug\gc_prog.pdb
+B:\MattC\GitHub\MB_Utils\QuickProgressbar\obj\x86\Debug\GeocodeProgress.Form1.resources
+B:\MattC\GitHub\MB_Utils\QuickProgressbar\obj\x86\Debug\QuickProgressbar.Properties.Resources.resources
+B:\MattC\GitHub\MB_Utils\QuickProgressbar\obj\x86\Debug\QuickProgressbar.csproj.GenerateResource.Cache
+B:\MattC\GitHub\MB_Utils\QuickProgressbar\obj\x86\Debug\gc_prog.exe
+B:\MattC\GitHub\MB_Utils\QuickProgressbar\obj\x86\Debug\gc_prog.pdb
+B:\MattC\GitHub\MB_Utils\QuickProgressbar\obj\x86\Debug\QuickProgressbar.csprojResolveAssemblyReference.cache

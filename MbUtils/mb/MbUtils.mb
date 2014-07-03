@@ -1,0 +1,290 @@
+Include "MapBasic.Def"
+Include "MbUtils.def"
+
+'Wrapped .NET methods - these do not need to be included or declared outside this file
+Declare Method _FolderBrowserDialog Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String) As String
+Declare Method _DoesFileExist Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal fileN As String) As Logical
+Declare Method _DoesFolderExist Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String) As Logical
+Declare Method _ListFiles Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, files() As String, ByVal numFiles As Integer, errStr As String)
+Declare Method _NumFiles Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String) As Integer
+Declare Method _ListFolders Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, folders() As String, ByVal numFolders As Integer, errStr As String)
+Declare Method _NumFolders Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String) As Integer
+Declare Method _KillTable Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String)
+Declare Method _CreateFolder Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String)
+Declare Method _DeleteFolder Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String)
+Declare Method _DeleteFile Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String)
+
+Declare Method _WriteToLogFile Class "MbUtils.Logger" Lib "MbUtils.dll" (ByVal logFilePath As String, ByVal logMsg As String, errStr As String)
+Declare Method _DumpException Class "MbUtils.Logger" Lib "MbUtils.dll" (ByVal dir As String, ByVal ex As String)
+
+Declare Method _Sleep Class "MbUtils.GenUtils" Lib "MbUtils.dll" (ByVal t As Integer, errStr As String)
+
+'Windows API functions - these do not need to be included or declared outside this file
+Declare Function GetUserNameWin Lib "advapi32.dll" Alias "GetUserNameA" (lpBuffer As String, nSize As Integer) As Integer
+
+'---------------------------------------------------------------------
+
+Sub ListOpenTables(openTables() As String)
+
+ReDim openTables(NumTables())
+
+Dim i As Integer
+For i = 1 To NumTables()
+	openTables(i) = TableInfo(i, TAB_INFO_NAME)
+Next
+
+End Sub
+
+'---------------------------------------------------------------------
+
+Sub CreateFolder(ByVal fullPath As String)
+
+Dim errStr As String
+errStr = ""
+
+Call _CreateFolder(fullPath, errStr)
+
+If errStr <> "" Then
+	Note "Error creating folder (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
+	Call _DumpException(ApplicationDirectory$(), errStr)
+End If
+
+End Sub
+
+'---------------------------------------------------------------------
+
+Sub DeleteFolder(ByVal fullPath As String)
+
+Dim errStr As String
+errStr = ""
+
+Call _DeleteFolder(fullPath, errStr)
+
+If errStr <> "" Then
+	Note "Error deleting folder (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
+	Call _DumpException(ApplicationDirectory$(), errStr)
+End If
+
+End Sub
+
+'---------------------------------------------------------------------
+
+Sub DeleteFile(ByVal path As String)
+
+Dim errStr As String
+errStr = ""
+
+Call _DeleteFile(path, errStr)
+
+If errStr <> "" Then
+	Note "Error deleting file (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
+	Call _DumpException(ApplicationDirectory$(), errStr)
+End If
+
+End Sub
+
+'--------------------------------------------------------------------
+
+Sub KillOpenTable(ByVal tableName As String)
+
+If Not IsTableOpen(tableName) Then
+	Note "Error deleting table " + tableName + " (MbUtils.mbo, MbUtils.dll): Table is not open"
+	Exit Sub
+End If
+
+Close Table tableName
+
+Dim errStr As String
+errStr = ""
+
+Call _KillTable(TableInfo(tableName, TAB_INFO_TABFILE), errStr)
+
+If errStr <> "" Then
+	Note "Error deleting files (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
+	Call _DumpException(ApplicationDirectory$(), errStr)
+End If
+
+End Sub
+
+'---------------------------------------------------------------------
+
+Sub ListFiles(ByVal fullPath As String, files() As String)
+
+Dim numFiles As Integer
+numFiles = _NumFiles(fullPath)
+
+ReDim files(numFiles)
+
+Dim errStr As String
+errStr = ""
+Call _ListFiles(fullPath, files(), numFiles, errStr)
+
+If errStr <> "" Then
+	Note "Error fetching files (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
+	Call _DumpException(ApplicationDirectory$(), errStr)
+End If
+
+End Sub
+
+'---------------------------------------------------------------------
+
+Sub ListFolders(ByVal fullPath As String, folders() As String)
+
+Dim numFolders As Integer
+numFolders = _NumFolders(fullPath)
+ReDim folders(numFolders)
+
+Dim errStr As String
+errStr = ""
+
+Call _ListFolders(fullPath, folders(), numFolders, errStr)
+
+If errStr <> "" Then
+	Note "Error fetching folders (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
+	Call _DumpException(ApplicationDirectory$(), errStr)
+End If
+
+End Sub
+
+'---------------------------------------------------------------------
+
+Sub PauseProgram(ByVal seconds As Integer)
+
+Dim errStr As String
+errStr = ""
+
+Call _Sleep(seconds, errStr)
+
+If errStr <> "" Then
+	Note "Error pausing program (MbUtils.mbo, MbUtils.dll): " + Chr$(13) +Chr$(13) + errStr
+	Call _DumpException(ApplicationDirectory$(), errStr)
+End If
+
+End Sub
+
+'---------------------------------------------------------------------
+
+Sub WriteToLogFile(ByVal logFilePath As String, ByVal logMsg As String)
+
+Dim errStr As String
+errStr = ""
+Call _WriteToLogFile(logFilePath, logMsg, errStr)
+
+If errStr <> "" Then
+	Note "Error writing to log file (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
+	Call _DumpException(ApplicationDirectory$(), errStr)
+End If
+
+End Sub
+
+'---------------------------------------------------------------------
+
+Function BrowseForFolder(ByVal startPath As String) As String
+
+Dim errStr As String
+Dim result As String
+result = _FolderBrowserDialog(startPath, errStr)
+
+If errStr <> "" Then
+	Note "Error calling FolderBrowserDialog: (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
+	Call _DumpException(ApplicationDirectory$(), errStr)
+	Exit Function
+End If
+
+BrowseForFolder = result
+
+End Function
+
+'---------------------------------------------------------------------
+
+Function IsTableOpen(ByVal tableName As String) As Logical
+
+Dim result As Logical
+result = False
+
+If NumTables() = 0 Then	
+	Goto return
+End If
+
+Dim i As Integer
+For i = 1 to NumTables()
+	If TableInfo(i, TAB_INFO_NAME) = tableName Then
+		result = True
+		Goto return
+	End If
+Next
+
+return:
+IsTableOpen = result
+
+End Function
+
+'---------------------------------------------------------------------
+
+Function DoesFileExist(ByVal fullFilePath As String) As Logical
+
+DoesFileExist = _DoesFileExist(fullFilePath)
+
+End Function
+
+'---------------------------------------------------------------------
+
+Function DoesFolderExist(ByVal fullPath As String) As Logical
+
+DoesFolderExist = _DoesFolderExist(fullPath)
+
+End Function
+ 
+'---------------------------------------------------------------------
+
+Function GetUserName() As String
+
+'Get user name
+Dim userName As String
+Dim nSize, nLeng As Integer
+
+nSize = 255
+userName = Space$(nSize)
+nLeng = GetUserNameWin(userName, nSize)
+
+GetUserName = userName
+
+End Function
+
+'---------------------------------------------------------------------
+
+Function ReplaceInString(ByVal fullString As String, ByVal removeString As String, ByVal replacementString As String) As String
+
+Dim removeStringPos As Integer
+Dim startString As String
+Dim endString As String
+
+OnError Goto ErrorOccured
+
+Search_For_Replace:
+removeStringPos = InStr(1, LCase$(fullString),
+LCase$(removeString))
+If (removeStringPos > 0) Then
+    If (removeStringPos = 1) Then
+        fullString = replacementString + Mid$(fullString, Len(removeString)+1, Len(fullString) - Len(removeString))
+    ElseIf ((removeStringPos + Len(removeString) - 1) = Len(fullString)) Then
+        fullString = Left$(fullString, removeStringPos-1) + replacementString
+	Else
+		startString = Left$(fullString, removeStringPos-1)
+		endString = Mid$(fullString, removeStringPos + Len(removeString), Len(fullString) - (removeStringPos + Len(removeString) - 1))
+         fullString = startString + replacementString + endString
+    End If
+
+    Goto Search_For_Replace
+End If
+
+ReplaceInString = fullString
+
+Exit Function
+
+ErrorOccured:
+ReplaceInString = ""
+
+End Function
+
+'---------------------------------------------------------------------

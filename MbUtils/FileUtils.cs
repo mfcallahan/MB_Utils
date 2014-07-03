@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Lam.MbUtils
+namespace MbUtils
 {
 	class FileUtils
 	{
@@ -66,11 +66,16 @@ namespace Lam.MbUtils
 		}
 
 		//get array of files in a folder
-		public static void _ListFiles(string dir, ref string[] files, ref string errStr)
+		public static void _ListFiles(string dir, string[] files, int numFiles, ref string errStr)
 		{
 			try
 			{
-				files = Directory.GetFiles(dir);
+				string[] dirFiles = Directory.GetFiles(dir);
+
+				for(int i = 0; i < numFiles; i++)
+				{
+					files[i] = Path.GetFileName(Path.GetDirectoryName(dirFiles[i]));
+				}
 			}
 			catch (Exception ex)
 			{
@@ -78,17 +83,33 @@ namespace Lam.MbUtils
 			}
 		}
 
-		public static void _ListFolders(string dir, ref string[] folders, ref string errStr)
+		public static int _NumFiles(string dir)
+		{
+			DirectoryInfo di = new DirectoryInfo(dir);
+			return di.GetFiles().Length;
+		}
+
+		public static void _ListFolders(string dir, string[] folders, int numFolders, ref string errStr)
 		{
 			try
 			{
-				folders = Directory.GetDirectories(dir);
+				string[] dirs = Directory.GetDirectories(dir);
+
+				for (int i = 0; i < numFolders; i++)
+				{
+					folders[i] = Path.GetDirectoryName(dirs[i]);
+				}
 			}
 			catch (Exception ex)
 			{
 				errStr = ex.ToString();
 			}
+		}
 
+		public static int _NumFolders(string dir)
+		{
+			DirectoryInfo di = new DirectoryInfo(dir);
+			return di.GetDirectories().Length;
 		}
 
 		public static bool _DoesFolderExist(string dir)
@@ -106,5 +127,56 @@ namespace Lam.MbUtils
 
 			return false;
 		}
-	}
-}
+
+		public static void _CreateFolder(string dir, ref string errStr)
+		{
+			if (!Directory.Exists(dir))
+			{
+				try
+				{
+					Directory.CreateDirectory(dir);
+				}
+				catch (Exception ex)
+				{
+					errStr = ex.ToString();
+				}
+			}
+
+		}
+
+		public static void _DeleteFolder(string dir, ref string errStr)
+		{
+			if (!Directory.Exists(dir))
+			{
+				try
+				{
+					Directory.Delete(dir);
+				}
+				catch (Exception ex)
+				{
+					errStr = ex.ToString();
+				}
+			}
+
+		}
+
+		public static void _DeleteFile(string dir, ref string errStr)
+		{
+			if (!File.Exists(dir))
+			{
+				try
+				{
+					File.Delete(dir);
+				}
+				catch (Exception ex)
+				{
+					errStr = ex.ToString();
+				}
+			}
+
+		}
+
+
+	}//end class
+
+}//end namespace

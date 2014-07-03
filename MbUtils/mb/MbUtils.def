@@ -1,0 +1,28 @@
+'General utils
+Declare Sub PauseProgram(ByVal seconds As Integer)
+
+Declare Function GetUserName() As String
+Declare Function ReplaceInString(ByVal fullString As String, ByVal removeString As String, ByVal replacementString As String) As String
+
+'File I/O utils
+Declare Sub CreateFolder(ByVal fullPath As String)
+Declare Sub DeleteFile(ByVal fullFilePath As String)
+Declare Sub DeleteFolder(ByVal fullPath As String)
+Declare Sub KillOpenTable(ByVal tableName As String)
+Declare Sub ListFiles(ByVal fullPath As String, files() As String)
+Declare Sub ListFolders(ByVal fullPath As String, folders() As String)
+Declare Sub ListOpenTables(openTables() As String)
+
+Declare Function BrowseForFolder(ByVal startPath As String) As String
+Declare Function DoesFileExist(ByVal fullFilePath As String) As Logical
+Declare Function DoesFolderExist(ByVal fullPath As String) As Logical
+Declare Function IsTableOpen(ByVal tableName As String) As Logical
+
+
+'Log file utils
+Declare Sub WriteToLogFile(ByVal logFilePath As String, ByVal logMsg As String)
+
+
+'Global vars
+Global userName As String
+
