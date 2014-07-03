@@ -1,7 +1,8 @@
 MB_Utils
 =======
 
-A MapBasic module that provides additional functionality by wrapping .NET and Windows API calls in easy to use mb functions and subs.
+A MapBasic (11.0 +) module and library that provides additional MBX programming functionality by wrapping .NET 4.0 and Win32 API calls in easy to use MapBasic functions and subs.  See Deploy\README.txt for full documentation.
+
 
 
 Contact:
