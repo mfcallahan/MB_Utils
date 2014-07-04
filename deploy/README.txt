@@ -25,7 +25,7 @@
 |	  that are declared in MbUtils.def:				     |
 |  		Include "MbUtils.def"                                        |
 |                                                                            |
-|  	- Copy MbUtils.dll, MbUtils.mbo, and MbUtils.def to the directory    |
+|  	- Copy MbUtils.dll and MbUtils.def to the directory		     |
 |	  from which the MBX will be run.				     |
 |                                                                            |
 +----------------------------------------------------------------------------+
