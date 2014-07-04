@@ -5,7 +5,7 @@ Include "MbUtils.def"
 Declare Method _FolderBrowserDialog Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String) As String
 Declare Method _DoesFileExist Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal fileN As String) As Logical
 Declare Method _DoesFolderExist Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String) As Logical
-Declare Method _ListFiles Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, files() As String, ByVal numFiles As Integer, errStr As String)
+Declare Method _ListFiles Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, files() As String, ByVal numFiles As Integer, ByVal searchExt As String, errStr As String)
 Declare Method _NumFiles Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String) As Integer
 Declare Method _ListFolders Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, folders() As String, ByVal numFolders As Integer, errStr As String)
 Declare Method _NumFolders Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String) As Integer
@@ -101,7 +101,7 @@ End Sub
 
 '---------------------------------------------------------------------
 
-Sub ListFiles(ByVal fullPath As String, files() As String)
+Sub ListFiles(ByVal fullPath As String, files() As String, ByVal searchExt As String)
 
 Dim numFiles As Integer
 numFiles = _NumFiles(fullPath)
@@ -110,7 +110,7 @@ ReDim files(numFiles)
 
 Dim errStr As String
 errStr = ""
-Call _ListFiles(fullPath, files(), numFiles, errStr)
+Call _ListFiles(fullPath, files(), numFiles, searchExt, errStr)
 
 If errStr <> "" Then
 	Note "Error fetching files (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
@@ -183,13 +183,14 @@ Dim L as Integer
 hWnd = WindowInfo(winId,WIN_INFO_WND)
 hMenuHandle = _GetSystemMenu(hWnd, False)
 If (hMenuHandle <> 0) Then
-  'removes CLOSE for SysMenu & disables "X"
-  RC = _DeleteMenu(hMenuHandle, SC_CLOSE, MF_BYCOMMAND)  
-  'set the new style
-  L = _SetWindowLong(hWnd, GWL_STYLE, L)
-  'force a "redraw"
-  RC = _DrawMenuBar(hWnd)
-  
+
+	'removes CLOSE for SysMenu & disables "X"
+	RC = _DeleteMenu(hMenuHandle, SC_CLOSE, MF_BYCOMMAND)  
+	'set the new style
+	L = _SetWindowLong(hWnd, GWL_STYLE, L)
+	'force a "redraw"
+	RC = _DrawMenuBar(hWnd)
+
 End If
 
 

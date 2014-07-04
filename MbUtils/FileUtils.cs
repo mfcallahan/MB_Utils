@@ -66,11 +66,11 @@ namespace MbUtils
 		}
 
 		//get array of files in a folder
-		public static void _ListFiles(string dir, string[] files, int numFiles, ref string errStr)
+		public static void _ListFiles(string dir, string[] files, int numFiles, string searchExt, ref string errStr)
 		{
 			try
 			{
-				string[] dirFiles = Directory.GetFiles(dir);
+				string[] dirFiles = Directory.GetFiles(dir, searchExt);
 
 				for(int i = 0; i < numFiles; i++)
 				{

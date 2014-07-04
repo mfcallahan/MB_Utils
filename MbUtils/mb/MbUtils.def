@@ -12,9 +12,10 @@ Declare Sub CreateFolder(ByVal fullPath As String)
 Declare Sub DeleteFile(ByVal fullFilePath As String)
 Declare Sub DeleteFolder(ByVal fullPath As String)
 Declare Sub KillOpenTable(ByVal tableName As String)
-Declare Sub ListFiles(ByVal fullPath As String, files() As String)
+Declare Sub ListFiles(ByVal fullPath As String, files() As String, ByVal searchExt As String)
 Declare Sub ListFolders(ByVal fullPath As String, folders() As String)
 Declare Sub ListOpenTables(openTables() As String)
+Declare Sub CopyFile(ByVal fullPathSource As String, ByVal fullPathDest As String)
 
 Declare Function BrowseForFolder(ByVal startPath As String) As String
 Declare Function DoesFileExist(ByVal fullFilePath As String) As Logical
@@ -38,16 +39,19 @@ Define MB_ABORTRETRYIGNORE &H2
 Define MB_YESNOCANCEL &H3
 Define MB_YESNO &H4
 Define MB_RETRYCANCEL &H5
+
 Define MB_ICONHAND &H10
 Define MB_ICONSTOP &H10
 Define MB_ICONQUESTION &H20
 Define MB_ICONEXCLAMATION &H30
 Define MB_ICONASTERISK &H40
 Define MB_ICONINFORMATION &H40
+
 Define MB_DEFBUTTON1 &H0
 Define MB_DEFBUTTON2 &H100
 Define MB_DEFBUTTON3 &H200
 Define MB_DEFBUTTON4 &H300
+
 Define MB_APPLMODAL &H0
 Define MB_SYSTEMMODAL &H1000
 Define MB_TASKMODAL &H2000

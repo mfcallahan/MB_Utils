@@ -5,8 +5,8 @@
 |  MbUtils.def                          |                                     
 |  MbUtils.dll                          |                                     
 |                                       |                                     
-|	   * MB_Utils *			|
-|					|                                     
+|	   * MB_Utils *						|
+|										|                                     
 |  MapBaisc utility functions and subs  |                                     
 |                                       |                                     
 |  updated: 7/3/14 by Matt C.           |                                     
@@ -15,18 +15,18 @@
 |                                                                            |
 |  To use MB_Utils:                                                          |
 |                                                                            |
-|  	- link module MbUtils.mbo in your MapBasic .mbp project file:        |
-|  		[LINK] Application = FooBar.mbx                              |
-|  		Module = MbUtils.mbo                                         |
-|  		Module = Module1.mbo                                         |
-|  		...                                                          |
-|  			                                                     |
-|  	- Include MbUtils.def in any .mb file using subs or functions	     |
-|	  that are declared in MbUtils.def:				     |
-|  		Include "MbUtils.def"                                        |
+|  	- link module MbUtils.mbo in your MapBasic .mbp project file:       	 |
+|  		[LINK] Application = FooBar.mbx                              		 |
+|  		Module = MbUtils.mbo                                        		 |
+|  		Module = Module1.mbo                                         		 |
+|  		...                                                          		 |
+|  			                                                     			 |
+|  	- Include MbUtils.def in any .mb file using subs or functions	     	 |
+|	  that are declared in MbUtils.def:				     					 |
+|  		Include "MbUtils.def"                                        		 |
 |                                                                            |
-|  	- Copy MbUtils.dll, MbUtils.mbo, and MbUtils.def to the directory    |
-|	  from which the MBX will be run.				     |
+|  	- Copy MbUtils.dll and MbUtils.def to the directory    	 				 |
+|	  from which the MBX will be run.				     					 |
 |                                                                            |
 +----------------------------------------------------------------------------+
 
@@ -42,12 +42,12 @@ GetUserName() Function
 	Example: 
 	
 		Dim currentUser As String
-		currentUser = GetUserName()	'userName will now be the
-						'Windows user name (no domain)
-						'ex: "AHSmith""
+		currentUser = GetUserName()		'currentUser will now be the
+										'Windows user name (no domain)
+										'ex: "AHSmith"
 						
-		'Optionally, use GetUserName() with Globally scoped userName
-		'String variable declared in MbUtils.def
+		'Optionally, use GetUserName() with Globaly scoped
+		'userName String variable declared in MbUtils.def
 		
 		userName = GetUserName()	'userName is now visible in all modules
 
@@ -100,7 +100,7 @@ ReplaceInString() Function
 		s = "The car is red."
 		sNew = ReplaceInString()
 
-WindowRemoveCloseButton()
+WindowRemoveCloseButton() Sub
 
 	Purpose: Remove the close [X] button on a custon dialog box
 	Parameters: (ByVal winId As Integer) [the window ID of dialog to modfiy]
@@ -120,6 +120,12 @@ BrowseForFolder() Function
 	
 		Dim savePath As String
 		savePath = BrowseForFolder("C:\Projects")
+		
+CopyFile() Sub
+	
+	Purpose: Make a copy of a file
+	Parameters: (ByVal fullPathSource As String, ByVal fullPathDest As String)
+			    [the full path of the file to copy, the full path of the file to create]
 
 CreateFolder() Sub
 
@@ -198,14 +204,15 @@ KillOpenTable() Sub
 ListFiles() Sub
 
 	Purpose: Get a list of all files (file name + extension only, not full path) in a specified folder, excluding subfolders
-	Parameters: (ByVal path As String, files() As String)
+	Parameters: (ByVal fullPath As String, files() As String, ByVal searchExt As String)
 		    [full path of the folder to search, 
-		     an array (passed by ref) to be populated with the list of file names]
+		     an array (passed by ref) to be populated with the list of file names,
+			 a search pattern (ex: "*.*" or "*.jpg")]
 	Return value: none
 	Example:
 	
 		Dim projectFiles() As String
-		Call ListFiles("C:\Projects\Master", projectFiles())
+		Call ListFiles("C:\Projects\Master", projectFiles(), "*.*")
 
 		'print all the files in specified folder
 		Dim i As Integer
@@ -243,7 +250,7 @@ WriteToLogFile() Sub
 
 	Example:
 	
-		Dim logFile As Strinfg
+		Dim logFile As String
 		logFile = "C:\Projects\log.txt"
 
 		If FileExists(logFile) Then
