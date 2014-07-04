@@ -5,8 +5,8 @@
 |  MbUtils.def                          |                                     
 |  MbUtils.dll                          |                                     
 |                                       |                                     
-|	   * MB_Utils *						|
-|										|                                     
+|	   * MB_Utils *			|
+|					|                                     
 |  MapBaisc utility functions and subs  |                                     
 |                                       |                                     
 |  updated: 7/3/14 by Matt C.           |                                     
@@ -15,18 +15,18 @@
 |                                                                            |
 |  To use MB_Utils:                                                          |
 |                                                                            |
-|  	- link module MbUtils.mbo in your MapBasic .mbp project file:       	 |
-|  		[LINK] Application = FooBar.mbx                              		 |
-|  		Module = MbUtils.mbo                                        		 |
-|  		Module = Module1.mbo                                         		 |
-|  		...                                                          		 |
-|  			                                                     			 |
-|  	- Include MbUtils.def in any .mb file using subs or functions	     	 |
-|	  that are declared in MbUtils.def:				     					 |
-|  		Include "MbUtils.def"                                        		 |
+|  	- link module MbUtils.mbo in your MapBasic .mbp project file:        |
+|  		[LINK] Application = FooBar.mbx                              |
+|  		Module = MbUtils.mbo                                         |
+|  		Module = Module1.mbo                                         |
+|  		...                                                          |
+|  			                                                     |
+|  	- Include MbUtils.def in any .mb file using subs or functions	     |
+|	  that are declared in MbUtils.def:				     |
+|  		Include "MbUtils.def"                                        |
 |                                                                            |
-|  	- Copy MbUtils.dll and MbUtils.def to the directory    	 				 |
-|	  from which the MBX will be run.				     					 |
+|  	- Copy MbUtils.dll and MbUtils.def to the directory		     |
+|	  from which the MBX will be run.				     |
 |                                                                            |
 +----------------------------------------------------------------------------+
 
@@ -42,39 +42,40 @@ GetUserName() Function
 	Example: 
 	
 		Dim currentUser As String
-		currentUser = GetUserName()		'currentUser will now be the
-										'Windows user name (no domain)
-										'ex: "AHSmith"
+		currentUser = GetUserName()	'userName will now be the
+						'Windows user name (no domain)
+						'ex: "AHSmith""
 						
-		'Optionally, use GetUserName() with Globaly scoped
-		'userName String variable declared in MbUtils.def
+		'Optionally, use GetUserName() with Globally scoped userName
+		'String variable declared in MbUtils.def
 		
 		userName = GetUserName()	'userName is now visible in all modules
 
 Note2() Function
 		
-		Purpose: Provides an enhanced message box, adding several options to the default "Note" statement
-		Parameters: (ByVal dialogTitle As String, ByVal messageText As String, iconButtons As Integer)
-			        [message box title, message to display, icon and button set to display]
-					iconButtons parameter values: MB_OK, MB_OKCANCEL, MB_ABORTRETRYIGNORE, MB_YESNOCANCEL, MB_YESNO, MB_RETRYCANCEL,
-												  MB_ICONHAND, MB_ICONSTOP, MB_ICONQUESTION, MB_ICONEXCLAMATION, MB_ICONASTERISK, MB_ICONINFORMATION
-		Reutn value: String [the button the user selected] returns: ok, cancel, abort, retry, ignore, yes, no
-		Example:
-			
-			Dim dialogParam As Integer
-			diaLogParam = MB_ABORTRETRYIGNORE + MB_ICONINFORMATION
+	Purpose: Provides an enhanced message box, adding several options to the default "Note" statement
+	Parameters: (ByVal dialogTitle As String, ByVal messageText As String, iconButtons As Integer)
+		    [message box title, message to display, icon and button set to display]
+		    iconButtons parameter values: MB_OK, MB_OKCANCEL, MB_ABORTRETRYIGNORE, MB_YESNOCANCEL,
+		    MB_YESNO, MB_RETRYCANCEL, MB_ICONHAND, MB_ICONSTOP, MB_ICONQUESTION, MB_ICONEXCLAMATION,
+		    MB_ICONASTERISK, MB_ICONINFORMATION
+	Reutn value: String [the button the user selected] returns: ok, cancel, abort, retry, ignore, yes, no
+	Example:
+		
+		Dim dialogParam As Integer
+		diaLogParam = MB_ABORTRETRYIGNORE + MB_ICONINFORMATION
 
-			Dim result As String
-			result = Note2("My Application", "Critical failure. Abort, retry, ignore?", dialogParam)
+		Dim result As String
+		result = Note2("My Application", "Critical failure. Abort, retry, ignore?", dialogParam)
 
-			Do Case result
-				Case "abort"
-					Exit Sub
-				Case "retry"
-					Call Foo()
-				Case "ignore"
-					Call Bar()
-			End Case
+		Do Case result
+			Case "abort"
+				Exit Sub
+			Case "retry"
+				Call Foo()
+			Case "ignore"
+				Call Bar()
+		End Case
 	
 PauseProgram() Sub
 
@@ -100,7 +101,7 @@ ReplaceInString() Function
 		s = "The car is red."
 		sNew = ReplaceInString()
 
-WindowRemoveCloseButton() Sub
+WindowRemoveCloseButton()
 
 	Purpose: Remove the close [X] button on a custon dialog box
 	Parameters: (ByVal winId As Integer) [the window ID of dialog to modfiy]
@@ -120,12 +121,6 @@ BrowseForFolder() Function
 	
 		Dim savePath As String
 		savePath = BrowseForFolder("C:\Projects")
-		
-CopyFile() Sub
-	
-	Purpose: Make a copy of a file
-	Parameters: (ByVal fullPathSource As String, ByVal fullPathDest As String)
-			    [the full path of the file to copy, the full path of the file to create]
 
 CreateFolder() Sub
 
@@ -204,15 +199,14 @@ KillOpenTable() Sub
 ListFiles() Sub
 
 	Purpose: Get a list of all files (file name + extension only, not full path) in a specified folder, excluding subfolders
-	Parameters: (ByVal fullPath As String, files() As String, ByVal searchExt As String)
+	Parameters: (ByVal path As String, files() As String)
 		    [full path of the folder to search, 
-		     an array (passed by ref) to be populated with the list of file names,
-			 a search pattern (ex: "*.*" or "*.jpg")]
+		     an array (passed by ref) to be populated with the list of file names]
 	Return value: none
 	Example:
 	
 		Dim projectFiles() As String
-		Call ListFiles("C:\Projects\Master", projectFiles(), "*.*")
+		Call ListFiles("C:\Projects\Master", projectFiles())
 
 		'print all the files in specified folder
 		Dim i As Integer
@@ -250,14 +244,13 @@ WriteToLogFile() Sub
 
 	Example:
 	
-		Dim logFile As String
+		Dim logFile As Strinfg
 		logFile = "C:\Projects\log.txt"
 
 		If FileExists(logFile) Then
 			DeleteLogFile(logFile)
 		End If
 
-		CreateLogFile(logFile)
 		Call Foo()
 		Call WriteToLogFile(logFile), "foo complete.")
 		Call Bar()
