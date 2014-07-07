@@ -1,11 +1,12 @@
 +-----------------------------------+
 
-MbUtils.mbo
-MbUtils.def
-bUtils.dll
-
 *    MB_Utils ver 1.0    *
 A MapBasic extension module.
+
+MbUtils.mbo
+MbUtils.def
+MbUtils.dll
+MbUtils.Progressbar.exe
 
 updated: 7/6/14 by Matt C.
 
