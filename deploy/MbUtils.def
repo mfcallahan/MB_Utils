@@ -1,33 +1,45 @@
+
 'General utils
 Declare Sub PauseProgram(ByVal seconds As Integer)
-Declare Sub WindowRemoveCloseButton(ByVal winId As Integer)
+Declare Sub QuickProgressbarOn(ByVal dialogTitle As String, ByVal messageText As String)
+Declare Sub QuickProgressbarOff()
 
+Declare Function GetMbUtilsVer() As String
 Declare Function GetUserName() As String
-Declare Function Note2(ByVal dialogTitle As String, ByVal messageText As String, iconButtons As Integer) As String
-Declare Function ReplaceInString(ByVal fullString As String, ByVal removeString As String, ByVal replacementString As String) As String
+Declare Function Note2(ByVal dialogTitle As String, ByVal dialogText As String, ByVal dialogType As String) As String
+Declare Function ReplaceInString(ByVal fullString As String, ByVal removeString As String, ByVal repalceString As String) As String
 
 
 'File I/O utils
-Declare Sub CreateFolder(ByVal fullPath As String)
-Declare Sub DeleteFile(ByVal fullFilePath As String)
-Declare Sub DeleteFolder(ByVal fullPath As String)
-Declare Sub KillOpenTable(ByVal tableName As String)
-Declare Sub ListFiles(ByVal fullPath As String, files() As String)
-Declare Sub ListFolders(ByVal fullPath As String, folders() As String)
-Declare Sub ListOpenTables(openTables() As String)
+'files
+Declare Sub CopyFile(ByVal filePathSource As String, ByVal filePathDest As String)
+Declare Sub CreateFile(ByVal filePath As String)
+Declare Sub DeleteFile(ByVal filePath As String)
+Declare Sub GetFiles(ByVal filePath As String, files() As String, ByVal searchExt As String, ByVal searchAllDirs As Logical)
+
+Declare Function DoesFileExist(ByVal fullFilePath As String) As Logical
+Declare Function GetFileCreationTime(ByVal fullFilePath As String) As Logical
+Declare Function GetFileLastWriteTime(ByVal fullFilePath As String) As Logical
+
+
+'folders
+Declare Sub CopyFolder(ByVal fullPathSource As String, ByVal fullPathDest As String)
+Declare Sub CreateFolder(ByVal folderPath As String)
+Declare Sub DeleteFolder(ByVal folderPath As String)
+Declare Sub GetFolders(ByVal folderPath As String, folders() As String)
 
 Declare Function BrowseForFolder(ByVal startPath As String) As String
-Declare Function DoesFileExist(ByVal fullFilePath As String) As Logical
-Declare Function DoesFolderExist(ByVal fullPath As String) As Logical
+Declare Function DoesFolderExist(ByVal folderPath As String) As Logical
+
+'tables
+Declare Sub KillTable(ByVal fullTablePath As String)
+Declare Sub ListOpenTables(openTables() As String)
+
 Declare Function IsTableOpen(ByVal tableName As String) As Logical
 
 
 'Log file utils
 Declare Sub WriteToLogFile(ByVal logFilePath As String, ByVal logMsg As String)
-
-
-'Global vars
-Global userName As String
 
 
 
@@ -38,16 +50,19 @@ Define MB_ABORTRETRYIGNORE &H2
 Define MB_YESNOCANCEL &H3
 Define MB_YESNO &H4
 Define MB_RETRYCANCEL &H5
+
 Define MB_ICONHAND &H10
 Define MB_ICONSTOP &H10
 Define MB_ICONQUESTION &H20
 Define MB_ICONEXCLAMATION &H30
 Define MB_ICONASTERISK &H40
 Define MB_ICONINFORMATION &H40
+
 Define MB_DEFBUTTON1 &H0
 Define MB_DEFBUTTON2 &H100
 Define MB_DEFBUTTON3 &H200
 Define MB_DEFBUTTON4 &H300
+
 Define MB_APPLMODAL &H0
 Define MB_SYSTEMMODAL &H1000
 Define MB_TASKMODAL &H2000

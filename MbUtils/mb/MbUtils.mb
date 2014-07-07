@@ -3,145 +3,411 @@ Include "MbUtils.def"
 
 'Wrapped .NET methods - these do not need to be included or declared outside this file
 Declare Method _FolderBrowserDialog Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String) As String
-Declare Method _DoesFileExist Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal fileN As String) As Logical
-Declare Method _DoesFolderExist Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String) As Logical
-Declare Method _ListFiles Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, files() As String, ByVal numFiles As Integer, ByVal searchExt As String, errStr As String)
-Declare Method _NumFiles Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String) As Integer
-Declare Method _ListFolders Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, folders() As String, ByVal numFolders As Integer, errStr As String)
+Declare Method _DoesFileExist Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal fileN As String, errStr As String) As Logical
+Declare Method _DoesFolderExist Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String) As Logical
+Declare Method _GetFiles Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, files() As String, ByVal numFiles As Integer, ByVal searchExt As String, ByVal allDirs As Integer, errStr As String)
+Declare Method _NumFiles Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, ByVal searchExt As String, ByVal allDirs As Integer) As Integer
+Declare Method _GetFolders Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, folders() As String, ByVal numFolders As Integer, errStr As String)
 Declare Method _NumFolders Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String) As Integer
 Declare Method _KillTable Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String)
 Declare Method _CreateFolder Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String)
 Declare Method _DeleteFolder Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String)
 Declare Method _DeleteFile Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String)
+Declare Method _CopyFile Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal sourcePath As String, ByVal destPath As String, errStr As String)
+Declare Method _CopyFolder Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal sourcePath As String, ByVal destPath As String, errStr As String)
+Declare Method _CreateFile Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal filePath As String, errStr As String)
+Declare Method _GetFileNameFromPath Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String) As String
+Declare Method _GetFileCreationTime Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String) As String
+Declare Method _GetFileLastWriteTime Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String) As String
 
 Declare Method _WriteToLogFile Class "MbUtils.Logger" Lib "MbUtils.dll" (ByVal logFilePath As String, ByVal logMsg As String, errStr As String)
 Declare Method _DumpException Class "MbUtils.Logger" Lib "MbUtils.dll" (ByVal dir As String, ByVal ex As String)
 
 Declare Method _Sleep Class "MbUtils.GenUtils" Lib "MbUtils.dll" (ByVal t As Integer, errStr As String)
+Declare Method _MarqueeProgressbarOn Class "MbUtils.GenUtils" Lib "MbUtils.dll" (ByVal dialogTitle As String, ByVal dialogText As String, errStr As String)
+Declare Method _MarqueeProgressbarOff Class "MbUtils.GenUtils" Lib "MbUtils.dll"(errStr As String)
+Declare Method _SetMapInfowFront Class "MbUtils.GenUtils" Lib "MbUtils.dll" (ByVal mihWnd As Integer)
 
-'Win32 API functions - these do not need to be included or declared outside this file
-Declare Function _GetUserNameWin Lib "advapi32.dll" Alias "GetUserNameA" (lpBuffer As String, nSize As Integer) As Integer
-Declare Function _GetSystemMenu Lib "user32" Alias "GetSystemMenu" (ByVal hwnd As Integer, ByVal bRevert As Integer) As Integer
-Declare Function _DrawMenuBar Lib "user32" Alias "DrawMenuBar" (ByVal hwnd As Integer) As Integer
-Declare Function _DeleteMenu Lib "user32" Alias "DeleteMenu" (ByVal hMenu As Integer, ByVal nPosition As Integer, ByVal wFlags As Integer) As Integer
-Declare Function _GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Integer, ByVal nIndex As Integer) As Integer
-Declare Function _SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hwnd As Integer, ByVal nIndex As Integer, ByVal dwNewLong As Integer) As Integer
+'Wrapped Win32 API functions - these do not need to be included or declared outside this file
+Declare Function _GetUserNameWin Lib "advapi32.dll" Alias "GetUserNameA" (lpBuffer As String, n As Integer) As Integer
 Declare Function _MessageBox Lib "user32" Alias "MessageBoxA" (ByVal hwnd As Integer, ByVal lpText As String, ByVal lpCaption As String, ByVal wType As Integer) As Integer
+Declare Function _SetCurrentDirectory Lib "kernel32" Alias "SetCurrentDirectoryA" (lpPathName As String) As Integer
 
-'---------------------------------------------------------------------
+'Internal Subs/Functions - these do not need to be included or declared outside this file
+Declare Function _MbUtilErrorDialog(ByVal errStr As String) As String
 
-Sub CreateFolder(ByVal fullPath As String)
 
+'-------------------------------------------------------------------------------------------------------------
+
+Function GetMbUtilsVer() As String
+
+GetMbUtilsVer = "1.0"
+
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
+
+Function _MbUtilErrorDialog(ByVal errStr As String) As String
+
+Dim i as integer
+i = MB_ABORTRETRYIGNORE + MB_ICONSTOP
+i = _MessageBox(0, errStr, "MB_Utils Error", i)
+
+Do Case i
+	Case 3
+		_MbUtilErrorDialog = "abort"
+	Case 4
+		_MbUtilErrorDialog = "retry"
+	Case 5
+		_MbUtilErrorDialog = "ignore"
+End Case
+
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
+
+End Function
+
+
+'-------------------------------------------------------------------------------------------------------------
+
+Sub CopyFile(ByVal filePathSource As String, ByVal filePathDest As String)
+
+'errStr is created with an empty value and passed by ref to the .NET method.
+'If an exception is thrown in the try/catch block of a MbUtils.dll method, errStr is populated with the exception details.
 Dim errStr As String
+
+retry:
 errStr = ""
 
-Call _CreateFolder(fullPath, errStr)
+'Internal call to MbUtils.dll here.
+Call _CopyFile(filePathSource, filePathDest, errStr)
 
+'If errStr still has the empty value, no exception was thrown and the MbUtils sub/fucntion will exit without error.
+'If errStr does not have an empty value, an error has occured, handle it here. 
 If errStr <> "" Then
-	Note "Error creating folder (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
+
+	errStr = "CopyFile() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+	
+	'Log the exception detials to a text file in ApplicationDirectory$(). Look for file prefixed with "MbUtils_error_"
 	Call _DumpException(ApplicationDirectory$(), errStr)
+	
+	'Display an error dialog box with the internal _MbUtilErrorDialog() funciton.  User will be prompted to abort, retry, or ignore.
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		'If users aborts, terminate the program.
+		Case "abort"
+			End Program
+		'If user retries, go back to the retry: label at the top of this sub/fuicntion .
+		Case "retry"
+			Goto retry
+		'If the users ignores, continue execution of the program.  Ignoring the error may produce unexpected resutls and/or additional errors.
+		Case "ignore"
+			Exit Sub
+	End Case
+	
 End If
 
 End Sub
 
-'---------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------------------
 
-Sub DeleteFile(ByVal path As String)
+Sub CopyFolder(ByVal fullPathSource As String, ByVal fullPathDest As String)
 
 Dim errStr As String
+
+retry:
 errStr = ""
 
-Call _DeleteFile(path, errStr)
+Call _CopyFolder(fullPathSource, fullPathDest, errStr)
 
 If errStr <> "" Then
-	Note "Error deleting file (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
+
+	errStr = "CopyFolder() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
 	Call _DumpException(ApplicationDirectory$(), errStr)
+	
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+	
+End If
+
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
+
+Sub CreateFile(ByVal filePath As String)
+
+Dim errStr As String
+
+retry:
+errStr = ""
+
+Call _CreateFile(filePath, errStr)
+
+If errStr <> "" Then
+
+	errStr = "CreateFile() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
+	Call _DumpException(ApplicationDirectory$(), errStr)
+	
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+	
+End If
+
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
+
+Sub CreateFolder(ByVal folderPath As String)
+
+Dim errStr As String
+
+retry:
+errStr = ""
+
+
+Call _CreateFolder(folderPath, errStr)
+
+If errStr <> "" Then
+
+	errStr = "CreateFolder() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
+	Call _DumpException(ApplicationDirectory$(), errStr)
+	
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+	
 End If
 
 End Sub
 
-'--------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------------------
 
-Sub DeleteFolder(ByVal fullPath As String)
+Sub DeleteFile(ByVal filePath As String)
 
 Dim errStr As String
+
+retry:
 errStr = ""
 
-Call _DeleteFolder(fullPath, errStr)
+Call _DeleteFile(filePath, errStr)
 
 If errStr <> "" Then
-	Note "Error deleting folder (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
+
+	errStr = "DeleteFile() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+	
 	Call _DumpException(ApplicationDirectory$(), errStr)
+	
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+	
 End If
 
 End Sub
 
-'---------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------------------
 
-Sub KillOpenTable(ByVal tableName As String)
-
-If Not IsTableOpen(tableName) Then
-	Note "Error deleting table " + tableName + " (MbUtils.mbo, MbUtils.dll): Table is not open"
-	Exit Sub
-End If
-
-Close Table tableName
+Sub DeleteFolder(ByVal folderPath As String)
 
 Dim errStr As String
+
+retry:
 errStr = ""
 
-Call _KillTable(TableInfo(tableName, TAB_INFO_TABFILE), errStr)
+Call _DeleteFolder(folderPath, errStr)
 
 If errStr <> "" Then
-	Note "Error deleting files (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
+
+	errStr = "DeleteFolder() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
 	Call _DumpException(ApplicationDirectory$(), errStr)
+	
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+	
 End If
 
 End Sub
 
-'---------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------------------
 
-Sub ListFiles(ByVal fullPath As String, files() As String, ByVal searchExt As String)
+Sub KillTable(ByVal fullTablePath As String)
+
+Dim tabName As String
+tabname = _GetFileNameFromPath(fullTablePath)
+tabname = Left$(tabName, (Len(tabname) - 4))
+
+If IsTableOpen(tabName) Then
+	Close Table tabName
+End If
+
+Dim errStr As String
+
+retry:
+errStr = ""
+
+Call _KillTable(fullTablePath, errStr)
+
+If errStr <> "" Then
+
+	errStr = "KillTable() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
+	Call _DumpException(ApplicationDirectory$(), errStr)
+	
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+	
+End If
+
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
+
+Sub GetFiles(ByVal filePath As String, files() As String, ByVal searchExt As String, ByVal searchAllDirs As Logical)
 
 Dim numFiles As Integer
-numFiles = _NumFiles(fullPath)
-
-ReDim files(numFiles)
-
 Dim errStr As String
+
+retry:
 errStr = ""
-Call _ListFiles(fullPath, files(), numFiles, searchExt, errStr)
+Do Case searchAllDirs
+	Case True
+		numFiles = _NumFiles(filePath, searchExt, 1)
+		ReDim files(numFiles)
+		Call _GetFiles(filePath, files(), numFiles, searchExt, 1, errStr)
+	Case False
+		numFiles = _NumFiles(filePath, searchExt, 0)
+		ReDim files(numFiles)
+		Call _GetFiles(filePath, files(), numFiles, searchExt, 0, errStr)
+End Case
+
 
 If errStr <> "" Then
-	Note "Error fetching files (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
+
+	errStr = "GetFiles() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
 	Call _DumpException(ApplicationDirectory$(), errStr)
+	
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+	
 End If
 
 End Sub
 
-'---------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------------------
 
-Sub ListFolders(ByVal fullPath As String, folders() As String)
+Sub GetFolders(ByVal folderPath As String, folders() As String)
 
 Dim numFolders As Integer
-numFolders = _NumFolders(fullPath)
-ReDim folders(numFolders)
-
 Dim errStr As String
+
+retry:
+numFolders = _NumFolders(folderPath)
+ReDim folders(numFolders)
 errStr = ""
 
-Call _ListFolders(fullPath, folders(), numFolders, errStr)
+Call _GetFolders(folderPath, folders(), numFolders, errStr)
 
 If errStr <> "" Then
-	Note "Error fetching folders (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
+
+	errStr = "GetFolders() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
 	Call _DumpException(ApplicationDirectory$(), errStr)
+	
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+	
 End If
 
 End Sub
 
-'---------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------------------
 
 Sub ListOpenTables(openTables() As String)
+
+Dim errStr As String
+
+retry:
+errStr = ""
+OnError Goto sub_error
 
 ReDim openTables(NumTables())
 
@@ -150,118 +416,378 @@ For i = 1 To NumTables()
 	openTables(i) = TableInfo(i, TAB_INFO_NAME)
 Next
 
+OnError Goto 0
+
+Exit Sub
+
+sub_error:
+
+errStr = "ListOpenTables() error: MbUtils.mbo " + Chr$(13) + Chr$(13) + Error$()
+
+Call _DumpException(ApplicationDirectory$(), errStr)
+
+Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+
 End Sub
 
-'---------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------------------
 
 Sub PauseProgram(ByVal seconds As Integer)
 
 Dim errStr As String
+
+retry:
 errStr = ""
 
 Call _Sleep(seconds, errStr)
 
 If errStr <> "" Then
-	Note "Error pausing program (MbUtils.mbo, MbUtils.dll): " + Chr$(13) +Chr$(13) + errStr
+
+	errStr = "PauseProgram() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
 	Call _DumpException(ApplicationDirectory$(), errStr)
+	
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+	
 End If
 
 End Sub
 
-'---------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------------------
 
-Sub WindowRemoveCloseButton(ByVal winId As Integer)
+Sub QuickProgressbarOn(ByVal dialogTitle As String, ByVal messageText As String)
 
-Define MF_BYCOMMAND &H1024
-Define GWL_STYLE -16
+Dim errStr As String
 
-Dim hMenuHandle as Integer
-Dim hWnd as Integer
-Dim RC as Integer
-Dim L as Integer
+retry:
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
+errStr = ""
 
-hWnd = WindowInfo(winId,WIN_INFO_WND)
-hMenuHandle = _GetSystemMenu(hWnd, False)
-If (hMenuHandle <> 0) Then
+OnError Goto sub_error
+'Call CreateFile(ApplicationDirectory$() + "pBarOn.mbutil")
+Run Program ApplicationDirectory$() + "MbUtils.Progressbar.exe """ + dialogTitle + """ """ + messageText + """"
+OnError Goto 0
 
-	'removes CLOSE for SysMenu & disables "X"
-	RC = _DeleteMenu(hMenuHandle, SC_CLOSE, MF_BYCOMMAND)  
-	'set the new style
-	L = _SetWindowLong(hWnd, GWL_STYLE, L)
-	'force a "redraw"
-	RC = _DrawMenuBar(hWnd)
+Exit Sub
 
-End If
+sub_error:
+errStr = "Call to QuickProgressbarOn() failed: MbUtils.mbo, MbUtils.dll" + Error$()
+Call _DumpException(ApplicationDirectory$(), errStr)
+	
+Dim userSel As String
+userSel = _MbUtilErrorDialog(errStr)
 
+Do Case userSel
+	Case "abort"
+		End Program
+	Case "retry"
+		Goto retry
+	Case "ignore"		
+		Exit Sub
+End Case
 
 End Sub
 
-'---------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------------------
+
+Sub QuickProgressbarOff()
+
+Dim errStr As String
+
+retry:
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
+errStr = ""
+
+OnError Goto sub_error
+Call _DeleteFile(ApplicationDirectory$() + "pBarOn.mbutil", errStr)
+OnError Goto 0
+
+Exit Sub
+
+sub_error:
+errStr = "Call to QuickProgressbarOff() failed: MbUtils.mbo, MbUtils.dll" + Error$()
+Call _DumpException(ApplicationDirectory$(), errStr)
+	
+Dim userSel As String
+userSel = _MbUtilErrorDialog(errStr)
+
+Do Case userSel
+	Case "abort"
+		End Program
+	Case "retry"
+		Goto retry
+	Case "ignore"		
+		Exit Sub
+End Case
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
 
 Sub WriteToLogFile(ByVal logFilePath As String, ByVal logMsg As String)
 
 Dim errStr As String
+
+retry:
 errStr = ""
 Call _WriteToLogFile(logFilePath, logMsg, errStr)
 
 If errStr <> "" Then
-	Note "Error writing to log file (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
+
+	errStr = "WriteToLogFile() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
 	Call _DumpException(ApplicationDirectory$(), errStr)
+	
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+	
 End If
 
 End Sub
 
-'---------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------------------
 
 Function BrowseForFolder(ByVal startPath As String) As String
 
-Dim errStr As String
-Dim result As String
+Dim errStr, result As String
+
+retry:
+errStr = ""
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
 result = _FolderBrowserDialog(startPath, errStr)
 
 If errStr <> "" Then
-	Note "Error calling FolderBrowserDialog: (MbUtils.mbo, MbUtils.dll): " + Chr$(13) + Chr$(13) + errStr
+
+	errStr = "BrowseForFolder() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
 	Call _DumpException(ApplicationDirectory$(), errStr)
-	Exit Function
+	
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+
+Else	
+	BrowseForFolder = result
 End If
 
-BrowseForFolder = result
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
+
+Function DoesFileExist(ByVal filePath As String) As Logical
+
+Dim errStr, result As String
+
+retry:
+errStr = ""
+result = _DoesFileExist(filePath, errStr)
+
+If errStr <> "" Then
+
+	errStr = "DoesFileExist() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+	
+	Call _DumpException(ApplicationDirectory$(), errStr)
+	
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+
+Else	
+	DoesFileExist = result
+End If
 
 End Function
 
-'---------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------------------
 
-Function DoesFileExist(ByVal fullFilePath As String) As Logical
+Function DoesFolderExist(ByVal folderPath As String) As Logical
 
-DoesFileExist = _DoesFileExist(fullFilePath)
+Dim errStr, result As String
 
-End Function
+retry:
+errStr = ""
+result = _DoesFolderExist(folderPath, errStr)
 
-'---------------------------------------------------------------------
+If errStr <> "" Then
 
-Function DoesFolderExist(ByVal fullPath As String) As Logical
+	errStr = "DoesFolderExist() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
 
-DoesFolderExist = _DoesFolderExist(fullPath)
+	Call _DumpException(ApplicationDirectory$(), errStr)
+	
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+
+Else	
+	DoesFolderExist = result
+End If
 
 End Function
  
-'---------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------------------
 
-Function GetUserName() As String
+Function GetFileCreationTime(ByVal fullFilePath As String) As Logical
 
-'Get user name
-Dim userName As String
-Dim nSize, nLeng As Integer
+Dim errStr, result As String
 
-nSize = 255
-userName = Space$(nSize)
-nLeng = _GetUserNameWin(userName, nSize)
+retry:
+errStr = ""
+result = _GetFileCreationTime(fullFilePath, errStr)
 
-GetUserName = userName
+If errStr <> "" Then
+
+	errStr = "GetFileCreationTime() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
+	Call _DumpException(ApplicationDirectory$(), errStr)
+	
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+
+Else	
+	GetFileCreationTime = result
+End If
+
 
 End Function
 
-'---------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------------------
+
+Function GetFileLastWriteTime(ByVal fullFilePath As String) As Logical
+
+Dim errStr, result As String
+
+retry:
+errStr = ""
+result = _GetFileLastWriteTime(fullFilePath, errStr)
+
+If errStr <> "" Then
+
+	errStr = "GetFileLastWriteTime() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
+	Call _DumpException(ApplicationDirectory$(), errStr)
+	
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+
+Else	
+	GetFileLastWriteTime = result
+End If
+
+
+
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
+
+Function GetUserName() As String
+
+Dim userName, result, errStr As String
+Dim n, nLen As Integer
+
+retry:
+errStr = ""
+OnError Goto function_error
+n = 255
+userName = Space$(n)
+nLen = _GetUserNameWin(userName, n)
+
+result = userName
+GetUserName = result
+OnError Goto 0
+
+Exit Function
+
+function_error:
+errStr = "Call to Win32 function _GetUserName() failed: MbUtils.mbo, MbUtils.dll" + Error$()
+Call _DumpException(ApplicationDirectory$(), errStr)
+	
+Dim userSel As String
+userSel = _MbUtilErrorDialog(errStr)
+
+Do Case userSel
+	Case "abort"
+		End Program
+	Case "retry"
+		Goto retry
+	Case "ignore"
+		GetUserName = ""
+		Exit Sub
+End Case
+
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
 
 Function IsTableOpen(ByVal tableName As String) As Logical
 
@@ -285,9 +811,9 @@ IsTableOpen = result
 
 End Function
 
-'---------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------------------
 
-Function Note2(ByVal dialogTitle As String, ByVal messageText As String, iconButtons As Integer) As String
+Function Note2(ByVal dialogTitle As String, ByVal dialogText As String, ByVal dialogType As String) As String
 
 ' hWnd handle of the Parent Window - should be MapInfo
 ' lptext message text
@@ -303,8 +829,30 @@ Function Note2(ByVal dialogTitle As String, ByVal messageText As String, iconBut
 ' 7 = NO
 ' NOTE: Set hWnd to 0 [zero]
 
+Dim errStr As String
 Dim i as integer
-i = _MessageBox(0, messageText, dialogTitle, iconButtons)
+
+retry:
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
+errStr = ""
+OnError Goto function_error
+
+Do Case dialogType
+	Case "OK"
+		i = MB_OK + MB_ICONINFORMATION
+	Case "OKCANCEL"
+		i = MB_OKCANCEL + MB_ICONQUESTION
+	Case "YESNO"
+		i = MB_YESNO + MB_ICONQUESTION
+	Case "YESNOCANCEL"
+		i = MB_YESNOCANCEL + MB_ICONQUESTION
+	Case "RETRYCANCEL"
+		i = MB_RETRYCANCEL + MB_ICONSTOP
+	Case "ABORTRETRYIGNORE"
+		i = MB_ABORTRETRYIGNORE + MB_ICONSTOP
+End Case
+
+i = _MessageBox(0, dialogText, dialogTitle, i)
 
 Do Case i
 	Case 1
@@ -323,11 +871,23 @@ Do Case i
 		Note2 = "no"
 End Case
 
+
+OnError Goto 0
+
+Exit Function 
+
+function_error:
+errStr = "Note2() error, Call to Win32 function _MessageBox() failed: MbUtils.mbo, MbUtils.dll" + Error$()
+Call _DumpException(ApplicationDirectory$(), errStr)
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
+Note errStr
+End Program
+
 End Function
 
-'---------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------------------
 
-Function ReplaceInString(ByVal fullString As String, ByVal removeString As String, ByVal replacementString As String) As String
+Function ReplaceInString(ByVal fullString As String, ByVal removeString As String, ByVal repalceString As String) As String
 
 Dim removeStringPos As Integer
 Dim startString As String
@@ -340,13 +900,13 @@ removeStringPos = InStr(1, LCase$(fullString),
 LCase$(removeString))
 If (removeStringPos > 0) Then
     If (removeStringPos = 1) Then
-        fullString = replacementString + Mid$(fullString, Len(removeString)+1, Len(fullString) - Len(removeString))
+        fullString = repalceString + Mid$(fullString, Len(removeString)+1, Len(fullString) - Len(removeString))
     ElseIf ((removeStringPos + Len(removeString) - 1) = Len(fullString)) Then
-        fullString = Left$(fullString, removeStringPos-1) + replacementString
+        fullString = Left$(fullString, removeStringPos-1) + repalceString
 	Else
 		startString = Left$(fullString, removeStringPos-1)
 		endString = Mid$(fullString, removeStringPos + Len(removeString), Len(fullString) - (removeStringPos + Len(removeString) - 1))
-         fullString = startString + replacementString + endString
+         fullString = startString + repalceString + endString
     End If
 
     Goto Search_For_Replace
@@ -361,4 +921,4 @@ ReplaceInString = ""
 
 End Function
 
-'---------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------------------

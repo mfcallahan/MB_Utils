@@ -1,38 +1,67 @@
++-----------------------------------+
+|									|
+|									|
+|	MbUtils.mbo						|
+|	MbUtils.def						|
+|	MbUtils.dll						|
+|									|
+|	*    MB_Utils ver 1.0    *		|
+|									|
+|	A MapBasic extension module.	|
+|									|
+|	updated: 7/6/14 by Matt C.		|
+|									|
+|									|
++-----------------------------------+
 
-+---------------------------------------+                                     
-|                                       |                                     
-|  MbUtils.mbo                          |                                     
-|  MbUtils.def                          |                                     
-|  MbUtils.dll                          |                                     
-|                                       |                                     
-|	   * MB_Utils *			|
-|					|                                     
-|  MapBaisc utility functions and subs  |                                     
-|                                       |                                     
-|  updated: 7/3/14 by Matt C.           |                                     
-|                                       | 
-+---------------------------------------+------------------------------------+
-|                                                                            |
-|  To use MB_Utils:                                                          |
-|                                                                            |
-|  	- link module MbUtils.mbo in your MapBasic .mbp project file:        |
-|  		[LINK] Application = FooBar.mbx                              |
-|  		Module = MbUtils.mbo                                         |
-|  		Module = Module1.mbo                                         |
-|  		...                                                          |
-|  			                                                     |
-|  	- Include MbUtils.def in any .mb file using subs or functions	     |
-|	  that are declared in MbUtils.def:				     |
-|  		Include "MbUtils.def"                                        |
-|                                                                            |
-|  	- Copy MbUtils.dll and MbUtils.def to the directory		     |
-|	  from which the MBX will be run.				     |
-|                                                                            |
-+----------------------------------------------------------------------------+
 
-+--------- Functions, Subs, and Global vars declared in MbUtils.def ---------+
++----------------------------------------  Using MB_Utils  -----------------------------------------+
 
-+--------------------------- General utils ----------------------------------+
+
+• link module MbUtils.mbo in your MapBasic .mbp project file:
+
+	[LINK] Application = MyApplication.mbx
+	Module = MbUtils.mbo
+	Module = Module1.mbo
+	Module = Module2.mbo
+	...
+
+• Include MbUtils.def in any .mb file using subs or functions that are declared in MbUtils.def:
+
+	Include "MbUtils.def"
+
+• Copy MbUtils.dll and (MbUtils.Progressbar.exe if using a progress bar) to the directory
+  from which the MBX will be run.  
+
+
++----------------------------------------  Error Handling  -----------------------------------------+
+
+
+MB_Utils has built-in error handling for all subs and functions declared in MbUtils.def.  Should a call 
+to a function or sub fail, the user will be presented with a dialog box noting the details of the error 
+that occured and the option to abort the program, retry execution of the code that failed, or ignore and 
+continue execution of the program.  In addition to the error dialog on screen, full details of the error 
+are dumped to a text file via an internal call to the _DumpException() method.  Dump files will be saved 
+to the directory from which the MBX was run, and are named "MbUtils_error_" + datestamp.
+
+
++---------------------  Functions, Subs, and Global vars Declared in MB_Utils  ---------------------+
+
+
++---------------  General utils ---------------+
+
+
+GetMbUtilsVer() Function
+
+	Purpose: Get the version of the current MbUtils module
+	Parameters: none
+	Return value: String [the version number]
+	Example:
+	
+		Dim ver As String
+		ver = GetMbUtilsVersion()
+		Print "MbUtils version = " + ver
+
 
 GetUserName() Function
 
@@ -42,40 +71,30 @@ GetUserName() Function
 	Example: 
 	
 		Dim currentUser As String
-		currentUser = GetUserName()	'userName will now be the
-						'Windows user name (no domain)
-						'ex: "AHSmith""
-						
-		'Optionally, use GetUserName() with Globally scoped userName
-		'String variable declared in MbUtils.def
-		
-		userName = GetUserName()	'userName is now visible in all modules
+		currentUser = GetUserName()		'userName will now be the Windows user name (no domain) ex: "JPage1"
+							
 
 Note2() Function
 		
-	Purpose: Provides an enhanced message box, adding several options to the default "Note" statement
-	Parameters: (ByVal dialogTitle As String, ByVal messageText As String, iconButtons As Integer)
-		    [message box title, message to display, icon and button set to display]
-		    iconButtons parameter values: MB_OK, MB_OKCANCEL, MB_ABORTRETRYIGNORE, MB_YESNOCANCEL,
-		    MB_YESNO, MB_RETRYCANCEL, MB_ICONHAND, MB_ICONSTOP, MB_ICONQUESTION, MB_ICONEXCLAMATION,
-		    MB_ICONASTERISK, MB_ICONINFORMATION
-	Reutn value: String [the button the user selected] returns: ok, cancel, abort, retry, ignore, yes, no
+	Purpose: Provides a simple enhanced message box, adding several options to the default "Note" statement
+	Parameters: (ByVal dialogTitle As String, ByVal dialogText As String, ByVal dialogType As String)
+				[message box title, message to display, dialog type to display]
+				* dialogType parameter values = { "OK", "OKCANCEL", "YESNO", "YESNOCANCEL", "RETRYCANCEL", "ABORTRETRYIGNORE" }
+	Return value: String [the button the user selected]
+				  * return values = { "ok", "cancel", "abort", "retry", "ignore", "yes", "no" }
 	Example:
-		
-		Dim dialogParam As Integer
-		diaLogParam = MB_ABORTRETRYIGNORE + MB_ICONINFORMATION
-
 		Dim result As String
-		result = Note2("My Application", "Critical failure. Abort, retry, ignore?", dialogParam)
+		result = Note2("My Application", "Critical error. Abort, retry, ignore?", "ABORTRETRYIGNORE")
 
 		Do Case result
 			Case "abort"
 				Exit Sub
 			Case "retry"
-				Call Foo()
+				Goto retry
 			Case "ignore"
-				Call Bar()
+				Call Foo()
 		End Case
+		
 	
 PauseProgram() Sub
 
@@ -87,30 +106,50 @@ PauseProgram() Sub
 		'pause for 3 seconds if var equals -1
 		If var = -1 Then
 			Call PauseProgram(3)
-		End If	
+		End If
+		
+		
+QuickProgressbarOn() Sub
+	
+	Purpose: Display a marquee style (continuously scrolling) progress bar that will not freeze during a lengthy operation
+	Parameters: (ByVal dialogTitle As String, ByVal messageText As String)
+				[text for progress bar title bar, text for progress bar message]
+	Return value: none
+	Example:
+	
+	Call QuickProgressbarOn("My Application", "Doing important stuff...")
+	
+	'FooBar() represents a lengthy operation that may freeze up the MapInfo UI
+	Call FooBar()
+	
+	Call QuickProgressbarOff()
+
+	
+		
+QuickProgressbarOff() Sub
+	
+	Purpose: Display a marquee style (continuously scrolling) progress bar during a lengthy operation
+	Parameters: none
+	Return value: none
+	Example: (see QuickProgressbarOn() Sub above)
+		
 
 ReplaceInString() Function
 
-	Purpose: Replace a substring with another string, from within a string
-	Parameters: (ByVal fullString As String, ByVal removeString As String, ByVal replacementString As String)
-		    [the original string, the string to search for and remove, the string to replace remoteString in fullString]
+	Purpose: Replace all occurances of a specified substirng within a string
+	Parameters: (ByVal fullString As String, ByVal removeString As String, ByVal repalceString  As String)
+				[the original string, the string to search for and remove, the string to replace removeString in fullString]
 	Return value: string [string with the specified values replaced]
 	Example:
 	
-		Dim s, sNew As String
-		s = "The car is red."
-		sNew = ReplaceInString()
+		Dim stringOrig, stringNew As String
+		stringOrig = "The car is red."
+		stringNew = ReplaceInString(stringOrig, "car", "truck")
+		Print stringNew		'output will be "The truck is red."
 
-WindowRemoveCloseButton()
 
-	Purpose: Remove the close [X] button on a custon dialog box
-	Parameters: (ByVal winId As Integer) [the window ID of dialog to modfiy]
-	Return value: none
-	Example:
++--------------  File I/O utils --------------+
 
-		Call WindowRemoveCloseButton(FrontWindow())
-
-+----------------------------- File I/O utils -------------------------------+
 
 BrowseForFolder() Function
 
@@ -121,127 +160,228 @@ BrowseForFolder() Function
 	
 		Dim savePath As String
 		savePath = BrowseForFolder("C:\Projects")
-
-CreateFolder() Sub
-
-	Purpose: Create a new folder
-	Parameters: (ByVal fullPath As String) [the full path of the folder to be created]
+		Print "savePath = " + savePath							'ex Print output: "C:\Projects\Master\all_sites"
+		Commit Table sites1 As savePath + "\sites_new.tab"		
+		
+		
+CopyFile() Sub
+	
+	Purpose: make a copy of a file
+	Parameters: (ByVal filePathSource As String, ByVal filePathDest As String) [source file, destination file]
 	Return value: none
 	Example:
 	
-		Call CreateFolder("C:\Projects\Master\temp_sites")
+		If Not DoesFileExist("C:\Projects\master\Sites1.jpg") Then
+			CopyFile("C:\pictures\Sites1.jpg", "C:\Projects\master\Sites1.jpg")
+		End If
+		
 
+CreateFile() Sub
+
+	Purpose: Create a new file
+	Parameters: (ByVal filePath As String) [the full path and file name of the file to create]
+	Return value: none
+	Example:
+	
+		If Not DoesFileExist("C:\Temp\sites1.txt") Then
+			Call CreateFile("C:\Temp\sites1.txt")
+		End If
+		
+	
+CopyFolder() Sub
+
+	Purpose: copy a folder and its contents
+	Parameters: (ByVal fullPathSource As String, ByVal fullPathDest As String)
+				[the full path of the folder to copy, the full path of the destination location]
+	Return value: none
+	Example:
+	
+		'You can pass a string representing the folder path with or without a trailing slash 
+	
+		Call CopyFolder("C:\Projects\maser", "C:\Projects\backup\July\master")
+				
+
+CreateFolder() Sub
+
+	Purpose: Create a new, empty folder
+	Parameters: (ByVal folderPath As String) [the full path of the folder to be created]
+	Return value: none
+	Example:
+	
+		'You can pass a string representing the folder path with or without a trailing slash 
+	
+		Call CreateFolder("C:\Projects\Master\temp_sites")
+		
+		'same result:
+		Call CreateFolder("C:\Projects\Master\temp_sites\")
+		
+		
 DeleteFile() Sub
 
 	Purpose: Delete a specified file
-	Parameters: (ByVal fullFilePath As String) [the full path and file name of file to delete]
+	Parameters: (ByVal filePath As String) [the full path and file name of file to delete]
 	Return value: none
 	Example:
 	
 		Call DeleteFile("C:\Projects\temp\log.txt")
+		
 
 DeleteFolder() Sub
 
 	Purpose: Delete a folder
-	Parameters: (ByVal fullPath As String) [the full path of the folder to be deleted]
+	Parameters: (ByVal folderPath As String) [the full path of the folder to be deleted]
 	Return value: none
 	Example:
 	
+		'You can pass a string representing the folder path with or without a trailing slash 
 		Call DeleteFolder("C:\Projects\Master\temp_sites")
+		
+		'same result:
+		Call DeleteFolder("C:\Projects\Master\temp_sites\")
+		
 
 DoesFileExist() Function
 
 	Purpose: Check if a file exists
-	Parameters: fullFilePath As String (the full path and file name, ex: "C:\Temp\Table1.TAB"
+	Parameters: (ByVal fullFilePath As String) [the full path and file name]
 	Return value: Logical [True if the file does exist]
 	Example:
 	
 		If DoesFileExist("C:\Projects\Master\Sites2.txt") Then
-			Open Table "C:\Projects\Master\Sites2.txt" As tempTable
+			Call DeleteFile("C:\Projects\Master\Sites2.txt")
 		End If
+		
 
 DoesFolderExist() Function
 
 	Purpose: Check if a folder exists
-	Parameters: fullPath As String (the full path, ex: "C:\Temp\"
+	Parameters: (ByVal folderPath As String) [the full folder path]
 	Return value: Logical [True if the folder does exist]
 	Example:
 	
 		If Not DoesFolderExist("C:\Projects\Master\maps") Then
-			Call CreateFolder("C:\Projects\Master\maps")
+			Call CreateFolder("C:\Projects\Master\maps")			
 		End If
 		
-IsTableOpen() Function
+		
+GetFiles() Sub
 
-	Purpose: Check if a table is currently open.
-	Parameters: none
-	Return value: Logical [True if the table is open in curren environment]
-	Example:
-	
-		If IsTableOpen("US_States") Then
-			Close Table US_States
-		End If	
-
-KillOpenTable() Sub
-
-	Purpose: Delete a MapInfo table and any associated files*
-	Parameters: (ByVal tableName As String) [name of currently open table to delete]
+	Purpose: Get a list of all files (file name + extension only, not full path) in a specified folder
+	Parameters: (ByVal filePath As String, files() As String, ByVal searchExt As String, ByVal searchAllDirs As Logical)
+				[full path of the folder to search,
+				an array (passed by ref) to be populated with the list of file names,
+				a file extension search pattern ex: "*.*" to search for for all files or "*.txt" for just text files,
+				True to recursively search all subfolders within fullPath or False to search fullPath only]
+			 
 	Return value: none
 	Example:
 	
-		Call KillOpenTable("Sites1")
+		Dim fileList() As String
+		Call GetFiles("C:\Windows\Temp", fileList(), "*.*", False)
 
-		*any files of the same name with these extensions:
-		.tab, .dat, .ind, .map, .id, .tda, .tin, .tma, .xls, .xlsx,
-		.txt, .dbf, .csv, .mdb, .accdb, .shp, .shx, .prj, .sbn, .sbx,
-		.fbn, .fbx, .ain, .aih, .ixs, .mxs, .atx, .shp, .xml, .xml, .cpg
-
-ListFiles() Sub
-
-	Purpose: Get a list of all files (file name + extension only, not full path) in a specified folder, excluding subfolders
-	Parameters: (ByVal path As String, files() As String)
-		    [full path of the folder to search, 
-		     an array (passed by ref) to be populated with the list of file names]
-	Return value: none
-	Example:
-	
-		Dim projectFiles() As String
-		Call ListFiles("C:\Projects\Master", projectFiles())
-
-		'print all the files in specified folder
+		'print all the files in specified folder, exlcuding files in subfolders
 		Dim i As Integer
-		For i = 1 To UBound(projectFiles())
-			Print projectFiles(i)
+		For i = 1 To UBound(fileList())
+			Print fileList(i)
 		Next
 
-ListFolders() Sub
+
+GetFileCreationTime() Function
+			
+		Purpose: Get the creation time of a specified file
+		Parameters: (ByVal fullFilePath As String) [the full path and filename]
+		Return value: String [date and time ex: "04/20/2014 10:59:16"]
+		Example:
+		
+			Dim createTime As String
+			createTime = GetFileCreationTime(ApplicationDirectory$() + "Sites2.txt")
+			
+			
+GetFileLastWriteTime() Function
+
+	Purpose: Get the last write time of a specified file
+	Parameters: (ByVal fullFilePath As String) [the full path and filename]
+	Return value: String [date and time ex: "07/08/2014 22:45:07"]
+	Example:
+		
+			Dim editTime As String
+			editTime = GetFileLastWriteTime(ApplicationDirectory$() + "Sites2.txt")
+			
+			
+GetFolders() Sub
 
 	Purpose: Get a list of all subfolders (folder names only, not full paths) in a specified folder
-	Parameters: (ByVal path As String, folders() As String)
+	Parameters: (ByVal folderPath As String, folders() As String)
 		    [full path of the folder to search,
 		    an array (passed by ref) to be populated with the list of folder names]
 	Return value: none
 	Example:
 	
+		'You can pass a string representing the folder path with or without a trailing slash 
+		
 		Dim projectFolders() As String
-		Call ListFolders("C:\Projects", projectFolders())
+		Call GetFolders("C:\Projects", projectFolders())
 
 		'print all the subfolders in the specified folder
 		Dim i As Integer
 		For i = 1 To UBound(projectFolders())
 			Print projectFolders(i)
 		Next
+		
+		
+IsTableOpen() Function
 
-+------------------------------ Log file utils ------------------------------+
+	Purpose: Check if a table is currently open.
+	Parameters: (ByVal tableName As String) [the name of a table]
+	Return value: Logical [True if the table is open in current environment]
+	Example:
+	
+		If IsTableOpen("Sites1") Then
+			Close Table Sites1
+		End If	
+		
+
+KillTable() Sub
+
+	Purpose: Delete a MapInfo table and any associated files*
+	Parameters: (ByVal fullTablePath As String) [name of MapInfo table to delete completely]
+	Return value: none
+	Example:
+	
+		Close Table "Sites1"
+		Call KillTable("C:\Windows\Temp\Sites1.tab")
+
+		*any files of the same name with these extensions:
+		{ .tab, .dat, .ind, .map, .id, .tda, .tin, .tma, .xls, .xlsx,
+		.txt, .dbf, .csv, .mdb, .accdb, .shp, .shx, .prj, .sbn, .sbx,
+		.fbn, .fbx, .ain, .aih, .ixs, .mxs, .atx, .shp, .xml, .xml, .cpg }
+		
+
+ListOpenTables() Sub
+
+	Purpose: List all open tables in the current Mapinfo environment
+	Parameters: (openTables() As String) [a string array (passed by ref) to be populated with the names of the open tables]
+	Return value: none
+	Example:
+	
+		Dim worTables() As String
+		Call ListOpenTables(worTables())
+		
+		Dialog
+			Title "Select Table"
+		Control PopupMenu
+			Title From Variable worTables()
+		
+		
+		
++--------------  Log file utils --------------+
+
 
 WriteToLogFile() Sub
 
-	Purpose: Write text to a log file. 
-	Parameters: (ByVal logFilePath As String, ByVal logMsg As String)
-		    [the full path and filename of log file, text to write]
-		    *If the specifed path/file for logFilePath does not exist, it will be created.
+	Purpose: Write text to a log file. If the specifed path/file for logFilePath does not exist, it will be created.
+	Parameters: (ByVal logFilePath As String, ByVal logMsg As String) [the full path and filename of log file, text to write]
 	Return value: none
-
 	Example:
 	
 		Dim logFile As Strinfg
@@ -255,15 +395,4 @@ WriteToLogFile() Sub
 		Call WriteToLogFile(logFile), "foo complete.")
 		Call Bar()
 		Call WriteToLogFile(logFile), "bar complete.")
-
-+--------------------------------- Global vars -------------------------------+
-
-Global userName As String
-	
-	Purpose: To expose the Windows username application-wide.  Use with GetUserName() Function.
-	Example:
-		
-		userName = GetUserName()	'variable already declared in MbUtils.def
-
-
 
