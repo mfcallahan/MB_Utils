@@ -28,7 +28,7 @@ updated: 7/6/14 by Matt C.
 
 	Include "MbUtils.def"
 
-• Copy MbUtils.dll and (MbUtils.Progressbar.exe if using a progress bar) to the directory
+• Copy MbUtils.dll (and MbUtils.Progressbar.exe if using a progress bar) to the directory
   from which the MBX will be run.  
 
 
