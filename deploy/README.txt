@@ -1,17 +1,14 @@
 +-----------------------------------+
-|									|
-|									|
-|	MbUtils.mbo						|
-|	MbUtils.def						|
-|	MbUtils.dll						|
-|									|
-|	*    MB_Utils ver 1.0    *		|
-|									|
-|	A MapBasic extension module.	|
-|									|
-|	updated: 7/6/14 by Matt C.		|
-|									|
-|									|
+
+MbUtils.mbo
+MbUtils.def
+bUtils.dll
+
+*    MB_Utils ver 1.0    *
+A MapBasic extension module.
+
+updated: 7/6/14 by Matt C.
+
 +-----------------------------------+
 
 
