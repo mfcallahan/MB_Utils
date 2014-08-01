@@ -1,0 +1,334 @@
+Include "MapBasic.Def"
+Include "MbUtils.def"
+
+'-------------------------------------------------------------------------------------------------------------
+
+Sub ClearArray(stringArray() As String, ByVal clearValue As String)
+
+Dim errStr As String
+
+retry:
+errStr = ""
+
+OnError Goto sub_error
+
+Dim i As Integer
+For i = 1 To UBound(stringArray())
+	stringArray(i) = clearValue
+Next
+
+OnError Goto 0
+
+Exit Sub
+
+sub_error:
+
+errStr = "ClearArray() error: MbUtils.Array.mbo " + Chr$(13) + Chr$(13) + Error$()
+
+Call _DumpException(ApplicationDirectory$(), errStr)
+
+Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+End Case
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
+
+Sub CopyArray(ByVal sourceArray() As String, destinationArray() As String)
+
+Dim errStr As String
+
+retry:
+errStr = ""
+
+OnError Goto sub_error
+
+Dim i As Integer
+For i = 1 To UBound(sourceArray())
+	
+	ReDim destinationArray(i)
+	destinationArray(i) = sourceArray(i)
+	
+Next
+
+OnError Goto 0
+
+Exit Sub
+
+sub_error:
+
+errStr = "CopyArray() error: MbUtils.Array.mbo " + Chr$(13) + Chr$(13) + Error$()
+
+Call _DumpException(ApplicationDirectory$(), errStr)
+
+Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+End Case
+
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
+
+Sub ForEachInArray(stringArray() As String, ByVal runCmds() As String As String)
+
+Dim errStr As String
+
+retry:
+errStr = ""
+
+OnError Goto sub_error
+
+Dim i, j As Integer
+For i = 1 To UBound(stringArray())
+	For j = 1 To UBound(runCmds())	
+		Run Command runCmds(j)	
+	Next	
+Next
+
+OnError Goto 0
+
+Exit Sub
+
+sub_error:
+
+errStr = "ForEachInArray() error: MbUtils.Array.mbo " + Chr$(13) + Chr$(13) + Error$()
+
+Call _DumpException(ApplicationDirectory$(), errStr)
+
+Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+End Case
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
+
+Sub SortArray(stringArray() As String, sortOrder As String)
+
+Dim errStr As String
+
+retry:
+errStr = ""
+
+OnError Goto sub_error
+
+Create Table "sortTable" (arrayValues Char(254)) file ApplicationDirectory$() + "sortTable.tab" TYPE NATIVE Charset "WindowsLatin1"
+
+Dim i As Integer
+For i = 1 To UBound(stringArray())
+	Insert Into sortTable Values (stringArray(i))
+Next
+
+Do Case sortOrder
+	Case "ASC"
+		Select arrayValues From sortTable Order By arrayValues Into sortSel
+	Case "DESC"
+		Select arrayValues From sortTable Order By arrayValues DESC Into sortSel
+	Case Else
+		errStr = "Incorrect parameter: sortOrder = " + sortOrder
+End Case
+
+For i = 1 To UBound(stringArray())
+	Fetch Rec i From sortSel
+	stringArray(i) = sortSel.arrayValues
+Next
+
+Close Table sortTable
+Call KillTable(sortTable)
+
+OnError Goto 0
+
+Exit Sub
+
+sub_error:
+
+errStr = "SortArray() error: MbUtils.Array.mbo " + Chr$(13) + Chr$(13) + Error$()
+
+Call _DumpException(ApplicationDirectory$(), errStr)
+
+Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+End Case
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
+
+Function ArrayToString(ByVal stringArray() As String) As String
+
+Dim errStr, result As String
+
+retry:
+errStr = ""
+
+OnError Goto sub_error
+
+Dim i As Integer
+For i = 1 To UBound(stringArray())
+	result = result + stringArray(i)
+Next
+
+ArrayToString = result
+
+OnError Goto 0
+
+Exit Function
+
+sub_error:
+
+errStr = "ArrayToString() error: MbUtils.Array.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
+Call _DumpException(ApplicationDirectory$(), errStr)
+
+Dim userSel As String
+userSel = _MbUtilErrorDialog(errStr)
+
+Do Case userSel
+	Case "abort"
+		End Program
+	Case "retry"
+		Goto retry
+	Case "ignore"
+		Exit Function
+End Case
+
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
+
+Function ArrayToDelimitedString(ByVal stringArray() As String, ByVal delimiter As String) As String
+
+Dim errStr, result As String
+
+retry:
+errStr = ""
+
+OnError Goto func_error
+
+Dim i As Integer
+For i = 1 To UBound(stringArray())
+	If i = UBound(stringArray()) Then
+		result = result + stringArray(i)
+	Else
+		result = result + stringArray(i) + delimiter
+	End If
+Next
+
+ArrayToString = result
+
+OnError Goto 0
+
+Exit Function
+func_error:
+
+errStr = "ArrayToString() error: MbUtils.Array.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
+Call _DumpException(ApplicationDirectory$(), errStr)
+
+Dim userSel As String
+userSel = _MbUtilErrorDialog(errStr)
+
+Do Case userSel
+	Case "abort"
+		End Program
+	Case "retry"
+		Goto retry
+	Case "ignore"
+		Exit Function
+End Case
+
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
+
+Function IndexOf(ByVal stringArray() As String, ByVal delimiter As String) As Integer
+
+Dim errStr, result As String
+
+retry:
+errStr = ""
+
+OnError Goto func_error
+
+result = 0
+
+Dim i As Integer
+For i = 1 To UBound(stringArray())
+	
+	If Like(stringArray(i) , "%" + searchValue + "%", "")
+	result = i
+	Exit For
+		
+Next
+
+IndexOf = result
+
+OnError Goto 0
+
+Exit Function
+
+func_error:
+
+errStr = "IndexOf() error: MbUtils.Array.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
+Call _DumpException(ApplicationDirectory$(), errStr)
+
+Dim userSel As String
+userSel = _MbUtilErrorDialog(errStr)
+
+Do Case userSel
+	Case "abort"
+		End Program
+	Case "retry"
+		Goto retry
+	Case "ignore"
+		Exit Function
+End Case
+
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+

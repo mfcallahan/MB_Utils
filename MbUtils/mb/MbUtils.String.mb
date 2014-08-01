@@ -1,0 +1,324 @@
+Include "MapBasic.Def"
+Include "MbUtils.def"
+
+'Wrapped .NET methods - these do not need to be included or declared outside this file
+Declare Method _SplitString Class "MbUtils.StringUtils" Lib "MbUtils.dll" (ByVal stringToSplit As String, ByVal delimiter As String, splitStrings() As String, errStr As String)
+Declare Method _CountDelimiterOccurances Class "MbUtils.StringUtils" Lib "MbUtils.dll" (ByVal stringToSearch As String, ByVal delimiter As String, errStr As String)
+Declare Method _CountWordsInString Class "MbUtils.StringUtils" Lib "MbUtils.dll" (ByVal stringToSearch As String, ByVal findSring As String, errStr As String)
+Declare Method _IsStringNumericValue Class "MbUtils.StringUtils" Lib "MbUtils.dll" (ByVal stringToSearch As String, errStr As String)
+Declare Method _StringEndsWith Class "MbUtils.StringUtils" Lib "MbUtils.dll" (ByVal stringToSearch As String, ByVal findSring As String, ByVal ignoreCase As Logical, errStr As String)
+Declare Method _StringStartsWith Class "MbUtils.StringUtils" Lib "MbUtils.dll" (ByVal stringToSearch As String, ByVal findSring As String,  ByVal ignoreCase As Logical, errStr As String)
+
+'-------------------------------------------------------------------------------------------------------------
+
+Sub SplitString(ByVal stringToSplit As String, ByVal delimiter As String, splitStrings() As String)
+
+Dim errStr As String
+
+retry:
+errStr = ""
+
+If Len(delimiter) > 1 Then
+	errStr = "Invalid delimeter parameter: " + delimeter
+	Goto error_dialog
+End If
+
+Dim n As Integer
+n = _CountDelimiterOccurances(stringToSplit, delimiter, errStr)
+
+If errStr <> "" Then
+	Goto error_dialog
+End If
+
+ReDim splitStrings(n)
+
+Call _SplitString(stringToSplit, delimiter, splitStrings(), errStr)
+
+If errStr <> "" Then
+	
+	error_dialog:
+	errStr = "SplitString() error: MbUtils.String.mbo " + Chr$(13) + Chr$(13) + errStr
+
+	Call _DumpException(ApplicationDirectory$(), errStr)
+
+	Dim userSel As String
+		userSel = _MbUtilErrorDialog(errStr)
+		
+		Do Case userSel
+			Case "abort"
+				End Program
+			Case "retry"
+				Goto retry
+			Case "ignore"
+				Exit Sub
+		End Case
+	
+End If
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
+
+Function CountCharsInString(ByVal searchString As String, ByVal findChar As String) As Integer
+
+Dim errStr As String
+
+retry:
+errStr = ""
+
+If Len(findChar) > 1 Then
+	errStr = "Invalid findChar parameter: " + delimeter
+	Goto error_dialog
+End If
+
+CountCharsInString =  _CountDelimiterOccurances(stringToSearch, findChar, errStr)
+
+If errStr <> "" Then
+
+	errStr = "CountCharsInString() error: MbUtils.String.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
+	Call _DumpException(ApplicationDirectory$(), errStr)
+
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+
+End If
+
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
+
+Function CountWordsInString(ByVal searchString As String, ByVal findString As String) As Integer
+
+Dim errStr As String
+
+retry:
+errStr = ""
+
+CountWordsInString =  _CountWordsInString(stringToSearch, findString, errStr)
+
+If errStr <> "" Then
+
+	errStr = "CountWordsInString() error: MbUtils.String.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
+	Call _DumpException(ApplicationDirectory$(), errStr)
+
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+
+End If
+
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
+
+Function InsertIntoString(ByVal fullString As String, ByVal insertString As String, ByVal insertAtIndex As String)
+
+Dim errStr As String
+
+retry:
+errStr = ""
+
+OnError Goto func_error
+
+InsertIntoString = Left$(fullString, (insertAtIndex - 1)) + insertString + Right$(fullString, (Len(fullString) - insertAtIndex))
+
+OnError Goto 0
+
+Exit Function
+
+func_error:
+
+errStr = "InsertIntoString() error: MbUtils.String.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
+Call _DumpException(ApplicationDirectory$(), errStr)
+
+Dim userSel As String
+userSel = _MbUtilErrorDialog(errStr)
+
+Do Case userSel
+	Case "abort"
+		End Program
+	Case "retry"
+		Goto retry
+	Case "ignore"
+		Exit Sub
+End Case
+
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
+
+Function IsStringNumericValue(ByVal stringToSearch As String) As Logical
+
+Dim errStr As String
+
+retry:
+errStr = ""
+
+IsStringNumericValue = _IsStringNumericValue(stringToSearch, errStr)
+
+If errStr <> "" Then
+
+	errStr = "IsStringNumericValue() error: MbUtils.String.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
+	Call _DumpException(ApplicationDirectory$(), errStr)
+
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+
+End If
+
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
+
+Function ReplaceInString(ByVal fullString As String, ByVal removeString As String, ByVal repalceString As String) As String
+
+Dim removeStringPos As Integer
+Dim errStr, result, startString, endString As String
+
+retry:
+errStr = ""
+
+OnError Goto func_error
+
+Search_For_Replace:
+removeStringPos = InStr(1, LCase$(fullString),LCase$(removeString))
+If (removeStringPos > 0) Then
+    If (removeStringPos = 1) Then
+        fullString = repalceString + Mid$(fullString, Len(removeString) + 1, Len(fullString) - Len(removeString))
+    ElseIf ((removeStringPos + Len(removeString) - 1) = Len(fullString)) Then
+        fullString = Left$(fullString, removeStringPos-1) + repalceString
+	Else
+		startString = Left$(fullString, removeStringPos - 1)
+		endString = Mid$(fullString, removeStringPos + Len(removeString), Len(fullString) - (removeStringPos + Len(removeString) - 1))
+		fullString = startString + repalceString + endString
+    End If
+
+    Goto Search_For_Replace
+End If
+
+ReplaceInString = fullString
+
+OnError Goto 0
+
+Exit Function
+
+func_error:
+
+errStr = "ReplaceInString() error: MbUtils.String.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
+Call _DumpException(ApplicationDirectory$(), errStr)
+
+Dim userSel As String
+userSel = _MbUtilErrorDialog(errStr)
+
+Do Case userSel
+	Case "abort"
+		End Program
+	Case "retry"
+		Goto retry
+	Case "ignore"
+		Exit Sub
+End Case
+
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
+
+Function StringEndsWith(ByVal stringToSearch As String, searchString As String, ByVal caseSensitive As Logical) As Logical
+
+Dim errStr As String
+
+retry:
+errStr = ""
+
+StringEndsWith = _StringEndsWith(stringToSearch, searchString, caseSensitive, errStr)
+
+If errStr <> "" Then
+
+	errStr = "StringEndsWith() error: MbUtils.String.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
+	Call _DumpException(ApplicationDirectory$(), errStr)
+
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+
+End If
+
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
+
+Function StringStartsWith(ByVal stringToSearch As String, searchString As String, ByVal caseSensitive As Logical) As Logical
+
+Dim errStr As String
+
+retry:
+errStr = ""
+
+StringStartsWith = _StringStartsWith(stringToSearch, searchString, caseSensitive, errStr)
+
+If errStr <> "" Then
+
+	errStr = "StringStartsWith() error: MbUtils.String.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
+	Call _DumpException(ApplicationDirectory$(), errStr)
+
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+
+End If
+
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
+
+
+

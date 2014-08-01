@@ -1,6 +1,6 @@
 +-----------------------------------+
 
-*    MB_Utils ver 1.0    *
+*    MB_Utils ver 1.1    *
 A MapBasic extension module.
 
 MbUtils.mbo
@@ -8,7 +8,7 @@ MbUtils.def
 MbUtils.dll
 MbUtils.Progressbar.exe
 
-updated: 7/6/14 by Matt C.
+updated: 7/27/14 by Matt C.
 
 +-----------------------------------+
 
@@ -29,7 +29,7 @@ updated: 7/6/14 by Matt C.
 	Include "MbUtils.def"
 
 • Copy MbUtils.dll (and MbUtils.Progressbar.exe if using a progress bar) to the directory
-  from which the MBX will be run.  
+  from which the MBX will be run. 
 
 
 +----------------------------------------  Error Handling  -----------------------------------------+
@@ -39,14 +39,14 @@ MB_Utils has built-in error handling for all subs and functions declared in MbUt
 to a function or sub fail, the user will be presented with a dialog box noting the details of the error 
 that occured and the option to abort the program, retry execution of the code that failed, or ignore and 
 continue execution of the program.  In addition to the error dialog on screen, full details of the error 
-are dumped to a text file via an internal call to the _DumpException() method.  Dump files will be saved 
+are dumped to a text file via a call to the internal _DumpException() method.  Dump files will be saved 
 to the directory from which the MBX was run, and are named "MbUtils_error_" + datestamp.
 
 
-+---------------------  Functions, Subs, and Global vars Declared in MB_Utils  ---------------------+
++----------------------------  Functions and Subs Declared in MB_Utils  ----------------------------+
 
 
-+---------------  General utils ---------------+
++---------------  General utils  --------------+
 
 
 GetMbUtilsVer() Function
@@ -58,7 +58,8 @@ GetMbUtilsVer() Function
 	
 		Dim ver As String
 		ver = GetMbUtilsVersion()
-		Print "MbUtils version = " + ver
+		Print "MbUtils version = " + ver	'output: "MbUtils version = X.X"
+		
 
 
 GetUserName() Function
@@ -114,13 +115,13 @@ QuickProgressbarOn() Sub
 				[text for progress bar title bar, text for progress bar message]
 	Return value: none
 	Example:
-	
-	Call QuickProgressbarOn("My Application", "Doing important stuff...")
-	
-	'FooBar() represents a lengthy operation that may freeze up the MapInfo UI
-	Call FooBar()
-	
-	Call QuickProgressbarOff()
+		
+		Call QuickProgressbarOn("My Application", "Doing important stuff...")
+		
+		'FooBar() represents a lengthy operation that may freeze up the MapInfo UI
+		Call FooBar()
+		
+		Call QuickProgressbarOff()
 
 	
 		
@@ -130,23 +131,66 @@ QuickProgressbarOff() Sub
 	Parameters: none
 	Return value: none
 	Example: (see QuickProgressbarOn() Sub above)
-		
+	
+	
++---------------  Array utils  ---------------+
 
-ReplaceInString() Function
 
-	Purpose: Replace all occurances of a specified substirng within a string
-	Parameters: (ByVal fullString As String, ByVal removeString As String, ByVal repalceString  As String)
-				[the original string, the string to search for and remove, the string to replace removeString in fullString]
-	Return value: string [string with the specified values replaced]
+ClearArray() Sub
+
+	Purpose: Clear all index values of a string array with a specified value
+	Parameters: (stringArray() As String, ByVal clearValue As String)
+				[a string array of values to clear, the value to seat all array indexs equal to]
+	Return value: none
 	Example:
 	
-		Dim stringOrig, stringNew As String
-		stringOrig = "The car is red."
-		stringNew = ReplaceInString(stringOrig, "car", "truck")
-		Print stringNew		'output will be "The truck is red."
+		Call ClearArray(values(), "none")		'all index values for values() will now be empty strings
 
 
-+--------------  File I/O utils --------------+
+		
+CopyArray() Sub
+
+	Purpose: Copy the contents of a string array to another string array
+	Parameters: (sourceArray() As String, destinationArray() As String)
+				[the array to copy, an array to populate with the values of sourceArray()]
+	Return value: none
+	Example:
+	
+		Dim values1(), values2() As String
+		Dim i As Integr
+		For i = 1 To 10
+			ReDim values1(i)
+			value1s(i) = i			
+		Next
+		
+		Call CopyArray(values1(), values2())
+		
+		'values2() will now be the same length and contain the same values as values1()
+		For i = 1 To 10
+			Print values2(i)		
+		Next
+
+
+ForEachInArray() Sub
+
+	Purpose: Interate through each string in a string array and a perform a command on each.
+
+		
+Declare Sub ForEachInArray(stringArray() As String, ByVal runCmd As String)
+
+
+
+
+
+Declare Sub SortArray(stringArray() As String, sortOrder As String)
+
+Declare Function ArrayToString(stringArray() As String) As String
+Declare Function ArrayToDelimitedString(stringArray() As String, ByVal delimiter As String) As String
+Declare Function IndexOf(stringArray() As String, ByVal searchString As String) As Integer	
+
+
+
++--------------  File I/O utils  -------------+
 
 
 BrowseForFolder() Function
@@ -264,7 +308,7 @@ DoesFolderExist() Function
 		
 GetFiles() Sub
 
-	Purpose: Get a list of all files (file name + extension only, not full path) in a specified folder
+	Purpose: Get a list of all files (not full path and filename) in a specified folder
 	Parameters: (ByVal filePath As String, files() As String, ByVal searchExt As String, ByVal searchAllDirs As Logical)
 				[full path of the folder to search,
 				an array (passed by ref) to be populated with the list of file names,
@@ -369,10 +413,6 @@ ListOpenTables() Sub
 			Title "Select Table"
 		Control PopupMenu
 			Title From Variable worTables()
-		
-		
-		
-+--------------  Log file utils --------------+
 
 
 WriteToLogFile() Sub
@@ -393,4 +433,25 @@ WriteToLogFile() Sub
 		Call WriteToLogFile(logFile), "foo complete.")
 		Call Bar()
 		Call WriteToLogFile(logFile), "bar complete.")
+		
 
+
++--------------  String utils  ---------------+
+		
+		
+
+ReplaceInString() Function
+
+	Purpose: Replace all occurances of a specified substirng within a string
+	Parameters: (ByVal fullString As String, ByVal removeString As String, ByVal repalceString  As String)
+				[the original string, the string to search for and remove, the string to replace removeString in fullString]
+	Return value: String [string with the specified values replaced]
+	Example:
+	
+		Dim stringOrig, stringNew As String
+		stringOrig = "The car is red."
+		stringNew = ReplaceInString(stringOrig, "car", "truck")
+		Print stringNew		'output will be "The truck is red."
+		
+
+		

@@ -20,6 +20,16 @@ namespace MbUtils
 				file.CopyTo(Path.Combine(target.FullName, file.Name));
 		}
 
+		public static void ZipFiles()
+		{
+			
+		}
+
+		public static void UnZipFiles()
+		{
+			
+		}
+		
 		public static void _KillTable(string fileN, ref string errStr)
 		{
 			try

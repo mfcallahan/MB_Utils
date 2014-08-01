@@ -1,0 +1,9 @@
+'MbUtils unit tests: ensure all subs and functions are working properly
+
+Include "MapBasic.Def"
+Include "MbUtils.def"
+
+
+
+
+

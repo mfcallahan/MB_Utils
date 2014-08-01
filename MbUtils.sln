@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MbUtils", "MbUtils\MbUtils.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MbUtils.Progressbar", "MbUtils.Progressbar\MbUtils.Progressbar.csproj", "{331D54E6-34BF-4CAF-BDC1-7DD30463DEB5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MbUils.Updater", "MbUils.Updater\MbUils.Updater.csproj", "{F41D3564-B44D-410C-946A-18E72EED1FD1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,16 @@ Global
 		{331D54E6-34BF-4CAF-BDC1-7DD30463DEB5}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{331D54E6-34BF-4CAF-BDC1-7DD30463DEB5}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{331D54E6-34BF-4CAF-BDC1-7DD30463DEB5}.Release|x86.ActiveCfg = Release|Any CPU
+		{F41D3564-B44D-410C-946A-18E72EED1FD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F41D3564-B44D-410C-946A-18E72EED1FD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F41D3564-B44D-410C-946A-18E72EED1FD1}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F41D3564-B44D-410C-946A-18E72EED1FD1}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F41D3564-B44D-410C-946A-18E72EED1FD1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F41D3564-B44D-410C-946A-18E72EED1FD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F41D3564-B44D-410C-946A-18E72EED1FD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F41D3564-B44D-410C-946A-18E72EED1FD1}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F41D3564-B44D-410C-946A-18E72EED1FD1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F41D3564-B44D-410C-946A-18E72EED1FD1}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

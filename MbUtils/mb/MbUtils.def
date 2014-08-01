@@ -1,5 +1,4 @@
-
-'General utils
+'General Utils
 Declare Sub PauseProgram(ByVal seconds As Integer)
 Declare Sub QuickProgressbarOn(ByVal dialogTitle As String, ByVal messageText As String)
 Declare Sub QuickProgressbarOff()
@@ -7,20 +6,42 @@ Declare Sub QuickProgressbarOff()
 Declare Function GetMbUtilsVer() As String
 Declare Function GetUserName() As String
 Declare Function Note2(ByVal dialogTitle As String, ByVal dialogText As String, ByVal dialogType As String) As String
+
+
+'Array Utils
+Declare Sub ClearArray(stringArray() As String, ByVal clearValue As String)
+Declare Sub CopyArray(sourceArray() As String, destinationArray() As String)
+Declare Sub ForEachInArray(stringArray() As String, ByVal runCmds() As String As String)
+Declare Sub SortArray(stringArray() As String, sortOrder As String)
+
+Declare Function ArrayToString(stringArray() As String) As String
+Declare Function ArrayToDelimitedString(stringArray() As String, ByVal delimiter As String) As String
+Declare Function IndexOf(stringArray() As String, ByVal searchString As String) As Integer
+
+
+'String Utils
+Declare Sub SplitString(ByVal stringToSplit As String, ByVal delimiter As String, splitStrings() As String)
+
+Declare Function CountCharsInString(ByVal searchString As String, ByVal findChar As String) As Integer
+Declare Function CountWordsInString(ByVal searchString As String, ByVal findString As String) As Integer
+Declare Function InsertIntoString(ByVal fullString As String, ByVal insertString As String, ByVal insertAtIndex As String)
 Declare Function ReplaceInString(ByVal fullString As String, ByVal removeString As String, ByVal repalceString As String) As String
+Declare Function IsStringNumericValue(ByVal stringToSearch As String) As Logical
+Declare Function StringStartsWith(ByVal stringToSearch As String, searchString As String, ByVal caseSensitive As Logical) As Logical
+Declare Function StringEndsWith(ByVal stringToSearch As String, searchString As String, ByVal caseSensitive As Logical) As Logical
 
 
-'File I/O utils
+'File I/O Utils
 'files
 Declare Sub CopyFile(ByVal filePathSource As String, ByVal filePathDest As String)
 Declare Sub CreateFile(ByVal filePath As String)
 Declare Sub DeleteFile(ByVal filePath As String)
 Declare Sub GetFiles(ByVal filePath As String, files() As String, ByVal searchExt As String, ByVal searchAllDirs As Logical)
+Declare Sub WriteToLogFile(ByVal logFilePath As String, ByVal logMsg As String)
 
 Declare Function DoesFileExist(ByVal fullFilePath As String) As Logical
 Declare Function GetFileCreationTime(ByVal fullFilePath As String) As Logical
 Declare Function GetFileLastWriteTime(ByVal fullFilePath As String) As Logical
-
 
 'folders
 Declare Sub CopyFolder(ByVal fullPathSource As String, ByVal fullPathDest As String)
@@ -33,13 +54,11 @@ Declare Function DoesFolderExist(ByVal folderPath As String) As Logical
 
 'tables
 Declare Sub KillTable(ByVal fullTablePath As String)
+Declare Sub ListColumns(ByVal tableName As String, colArray() As String)
 Declare Sub ListOpenTables(openTables() As String)
 
 Declare Function IsTableOpen(ByVal tableName As String) As Logical
-
-
-'Log file utils
-Declare Sub WriteToLogFile(ByVal logFilePath As String, ByVal logMsg As String)
+Declare Function IsColumnPresent(ByVal tableName As String, ByVal colName As String) As Logical
 
 
 

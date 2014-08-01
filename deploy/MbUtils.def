@@ -33,6 +33,7 @@ Declare Function DoesFolderExist(ByVal folderPath As String) As Logical
 
 'tables
 Declare Sub KillTable(ByVal fullTablePath As String)
+Declare Sub ListColumns(ByVal tableName As String, colArray() As String)
 Declare Sub ListOpenTables(openTables() As String)
 
 Declare Function IsTableOpen(ByVal tableName As String) As Logical
