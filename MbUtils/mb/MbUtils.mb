@@ -1,0 +1,270 @@
+Include "MapBasic.Def"
+Include "MbUtils.def"
+
+'Wrapped .NET methods - these do not need to be included or declared outside this file
+Declare Method _DumpException Class "MbUtils.Logger" Lib "MbUtils.dll" (ByVal dir As String, ByVal ex As String)
+
+Declare Method _Sleep Class "MbUtils.GenUtils" Lib "MbUtils.dll" (ByVal t As Integer, errStr As String)
+Declare Method _MarqueeProgressbarOn Class "MbUtils.GenUtils" Lib "MbUtils.dll" (ByVal dialogTitle As String, ByVal dialogText As String, errStr As String)
+Declare Method _MarqueeProgressbarOff Class "MbUtils.GenUtils" Lib "MbUtils.dll"(errStr As String)
+Declare Method _SetMapInfowFront Class "MbUtils.GenUtils" Lib "MbUtils.dll" (ByVal mihWnd As Integer)
+
+'Wrapped Win32 API functions - these do not need to be included or declared outside this file
+Declare Function _GetUserNameWin Lib "advapi32.dll" Alias "GetUserNameA" (lpBuffer As String, n As Integer) As Integer
+Declare Function _MessageBox Lib "user32" Alias "MessageBoxA" (ByVal hwnd As Integer, ByVal lpText As String, ByVal lpCaption As String, ByVal wType As Integer) As Integer
+
+'Internal Subs/Functions - these do not need to be included or declared outside this file
+Declare Function _MbUtilErrorDialog(ByVal errStr As String) As String
+
+
+'-------------------------------------------------------------------------------------------------------------
+
+Function GetMbUtilsVer() As String
+
+GetMbUtilsVer = "1.1"
+
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
+
+Function _MbUtilErrorDialog(ByVal errStr As String) As String
+
+Dim i As Integer
+i = MB_ABORTRETRYIGNORE + MB_ICONSTOP
+i = _MessageBox(0, errStr, "MbUtils Error", i)
+
+Do Case i
+	Case 3
+		_MbUtilErrorDialog = "abort"
+	Case 4
+		_MbUtilErrorDialog = "retry"
+	Case 5
+		_MbUtilErrorDialog = "ignore"
+End Case
+
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
+
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
+
+Sub PauseProgram(ByVal seconds As Integer)
+
+Dim errStr As String
+
+retry:
+errStr = ""
+
+Call _Sleep(seconds, errStr)
+
+If errStr <> "" Then
+
+	errStr = "PauseProgram() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
+
+	Call _DumpException(ApplicationDirectory$(), errStr)
+	
+	Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+	
+End If
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
+
+Sub QuickProgressbarOn(ByVal dialogTitle As String, ByVal messageText As String)
+
+Set ProgressBars Off
+
+Dim errStr As String
+
+retry:
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
+errStr = ""
+
+OnError Goto sub_error
+Run Program ApplicationDirectory$() + "MbUtils.Progressbar.exe """ + dialogTitle + """ """ + messageText + """"
+OnError Goto 0
+
+Exit Sub
+
+sub_error:
+errStr = "Call to QuickProgressbarOn() failed: MbUtils.mbo, MbUtils.dll" + Error$()
+Call _DumpException(ApplicationDirectory$(), errStr)
+	
+Dim userSel As String
+userSel = _MbUtilErrorDialog(errStr)
+
+Do Case userSel
+	Case "abort"
+		End Program
+	Case "retry"
+		Goto retry
+	Case "ignore"		
+		Exit Sub
+End Case
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
+
+Sub QuickProgressbarOff()
+
+Set ProgressBars On
+
+Dim errStr As String
+
+retry:
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
+errStr = ""
+
+OnError Goto sub_error
+Call _DeleteFile(ApplicationDirectory$() + "pBarOn.mbutil", errStr)
+OnError Goto 0
+
+Exit Sub
+
+sub_error:
+errStr = "Call to QuickProgressbarOff() failed: MbUtils.mbo, MbUtils.dll" + Error$()
+Call _DumpException(ApplicationDirectory$(), errStr)
+	
+Dim userSel As String
+userSel = _MbUtilErrorDialog(errStr)
+
+Do Case userSel
+	Case "abort"
+		End Program
+	Case "retry"
+		Goto retry
+	Case "ignore"		
+		Exit Sub
+End Case
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
+
+Function GetUserName() As String
+
+Dim userName, result, errStr As String
+Dim n, nLen As Integer
+
+retry:
+errStr = ""
+OnError Goto function_error
+n = 255
+userName = Space$(n)
+nLen = _GetUserNameWin(userName, n)
+
+result = userName
+GetUserName = result
+OnError Goto 0
+
+Exit Function
+
+function_error:
+errStr = "Call to GetUserName() failed: MbUtils.mbo" + Error$()
+Call _DumpException(ApplicationDirectory$(), errStr)
+	
+Dim userSel As String
+userSel = _MbUtilErrorDialog(errStr)
+
+Do Case userSel
+	Case "abort"
+		End Program
+	Case "retry"
+		Goto retry
+	Case "ignore"
+		GetUserName = ""
+		Exit Sub
+End Case
+
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
+
+Function Note2(ByVal dialogTitle As String, ByVal dialogText As String, ByVal dialogType As String) As String
+
+' hWnd handle of the Parent Window - should be MapInfo
+' lptext message text
+' lpCaption dialog title
+' wType style flags
+' RETURNS:
+' 1 = OK
+' 2 = CANCEL
+' 3 = ABORT
+' 4 = RETRY
+' 5 = IGNORE
+' 6 = YES
+' 7 = NO
+' NOTE: Set hWnd to 0 [zero]
+
+Dim errStr As String
+Dim i As integer
+
+retry:
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
+errStr = ""
+OnError Goto function_error
+
+Do Case dialogType
+	Case "OK"
+		i = MB_OK + MB_ICONINFORMATION
+	Case "OK2"
+		i = MB_OK + MB_ICONSTOP
+	Case "OKCANCEL"
+		i = MB_OKCANCEL + MB_ICONQUESTION
+	Case "YESNO"
+		i = MB_YESNO + MB_ICONQUESTION
+	Case "YESNOCANCEL"
+		i = MB_YESNOCANCEL + MB_ICONQUESTION
+	Case "RETRYCANCEL"
+		i = MB_RETRYCANCEL + MB_ICONSTOP
+	Case "ABORTRETRYIGNORE"
+		i = MB_ABORTRETRYIGNORE + MB_ICONSTOP
+End Case
+
+i = _MessageBox(0, dialogText, dialogTitle, i)
+
+Do Case i
+	Case 1
+		Note2 = "ok"
+	Case 2
+		Note2 = "cancel"
+	Case 3
+		Note2 = "abort"
+	Case 4
+		Note2 = "retry"
+	Case 5
+		Note2 = "ignore"
+	Case 6
+		Note2 = "yes"
+	Case 7
+		Note2 = "no"
+End Case
+
+
+OnError Goto 0
+
+Exit Function 
+
+function_error:
+errStr = "Note2() error, Call to Win32 function _MessageBox() failed: MbUtils.mbo, MbUtils.dll" + Error$()
+Call _DumpException(ApplicationDirectory$(), errStr)
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
+Note errStr
+End Program
+
+End Function
+
+'-------------------------------------------------------------------------------------------------------------
+

@@ -188,7 +188,7 @@ End Sub
 
 '-------------------------------------------------------------------------------------------------------------
 
-Function ArrayToString(ByVal stringArray() As String) As String
+Function ArrayToString(ByVal stringArray() As String, delimiter As String) As String
 
 Dim errStr, result As String
 
@@ -198,9 +198,25 @@ errStr = ""
 OnError Goto sub_error
 
 Dim i As Integer
-For i = 1 To UBound(stringArray())
-	result = result + stringArray(i)
-Next
+Do Case delimiter
+
+	Case ""
+	
+		For i = 1 To UBound(stringArray())
+			result = result + stringArray(i)
+		Next
+		
+	Case Else
+	
+		For i = 1 To UBound(stringArray())
+			If i = UBound(stringArray())
+				result = result + stringArray(i)
+			Else
+				result = result + stringArray(i) + delimiter
+			End If
+		Next
+	
+End Case
 
 ArrayToString = result
 
@@ -209,51 +225,6 @@ OnError Goto 0
 Exit Function
 
 sub_error:
-
-errStr = "ArrayToString() error: MbUtils.Array.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
-
-Call _DumpException(ApplicationDirectory$(), errStr)
-
-Dim userSel As String
-userSel = _MbUtilErrorDialog(errStr)
-
-Do Case userSel
-	Case "abort"
-		End Program
-	Case "retry"
-		Goto retry
-	Case "ignore"
-		Exit Function
-End Case
-
-End Function
-
-'-------------------------------------------------------------------------------------------------------------
-
-Function ArrayToDelimitedString(ByVal stringArray() As String, ByVal delimiter As String) As String
-
-Dim errStr, result As String
-
-retry:
-errStr = ""
-
-OnError Goto func_error
-
-Dim i As Integer
-For i = 1 To UBound(stringArray())
-	If i = UBound(stringArray()) Then
-		result = result + stringArray(i)
-	Else
-		result = result + stringArray(i) + delimiter
-	End If
-Next
-
-ArrayToString = result
-
-OnError Goto 0
-
-Exit Function
-func_error:
 
 errStr = "ArrayToString() error: MbUtils.Array.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
 

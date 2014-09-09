@@ -1,0 +1,145 @@
+Include "MapBasic.Def"
+Include "Lam.MbUtils.def"
+
+Declare Sub Main
+
+
+Sub Main
+
+
+Set Window Message Position (2, 1) Width 3 Height 5
+Print Chr$(12)
+
+Dim i As Integer
+
+
+'--------------------------------------------------
+
+Print "PauseProgram() test"
+Print "will pause for 5 seconds..."
+Call PauseProgram(5)
+Print "complete."
+
+Print ""
+Print ""
+Print ""
+
+
+'--------------------------------------------------
+
+
+Print "GetUserName() test"
+
+userName = GetUserName()
+Print "userName = " + userName
+Print ""
+Print ""
+Print ""
+
+
+'--------------------------------------------------
+
+
+Print "ReplaceInString() test"
+Print ""
+Print ""
+Print ""
+
+
+'--------------------------------------------------
+
+
+Print "ListFiles() test"
+
+Dim files() As String 
+Call ListFiles("C:\Windows\Temp", files())
+
+For i = 1 To UBound(files())
+	Print files(i)
+Next
+
+Print ""
+Print ""
+Print ""
+
+
+'--------------------------------------------------
+
+
+Print "ListFolders() test"
+
+Dim folders() As String 
+Call ListFolders("C:\Windows\Temp", folders())
+
+For i = 1 To UBound(folders())
+	Print folders(i)
+Next
+
+Print ""
+Print ""
+Print ""
+
+
+'--------------------------------------------------
+
+
+Print "KillTable(), DoesFileExist() test"
+
+Create Table "tempTable" (Name Char(50)) File ApplicationDirectory$() + "tempTable.tab" TYPE NATIVE Charset "WindowsLatin1"
+Create Map For tempTable CoordSys Earth Projection 1, 0
+
+Call KillOpenTable("tempTable")
+
+If Not DoesFileExist(ApplicationDirectory$() + "tempTable.tab") Then
+	Print "tempTable deleted successfully."
+End If
+
+Print ""
+Print ""
+Print ""
+
+
+'--------------------------------------------------
+
+
+Print "CreateFolder(), DoesFolderExist(), DeleteFolder() test"
+
+Dim tempFolder As String
+tempFolder = ApplicationDirectory$() + "test_folder"
+
+Call CreateFolder(tempFolder)
+
+If DoesFolderExist(tempFolder) Then
+	Print tempFolder + " created successfully."
+End If
+
+Call DeleteFolder(ApplicationDirectory$() + "test_folder")
+
+If Not DoesFolderExist(tempFolder) Then
+	Print tempFolder + " deleted successfully."
+End If
+
+Print ""
+Print ""
+Print ""
+
+
+'--------------------------------------------------
+
+
+Print "BrowseForFolder() test"
+
+Dim selectedFolder As String
+selectedFolder = BrowseForFolder("C:\")
+Print "You selected folder: " + selectedFolder
+
+Print ""
+Print ""
+Print ""
+
+
+'--------------------------------------------------
+
+
+
+End Sub

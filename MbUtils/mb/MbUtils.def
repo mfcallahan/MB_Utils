@@ -14,8 +14,7 @@ Declare Sub CopyArray(sourceArray() As String, destinationArray() As String)
 Declare Sub ForEachInArray(stringArray() As String, ByVal runCmds() As String As String)
 Declare Sub SortArray(stringArray() As String, sortOrder As String)
 
-Declare Function ArrayToString(stringArray() As String) As String
-Declare Function ArrayToDelimitedString(stringArray() As String, ByVal delimiter As String) As String
+Declare Function ArrayToString(ByVal stringArray() As String, delimiter As String) As String
 Declare Function IndexOf(stringArray() As String, ByVal searchString As String) As Integer
 
 

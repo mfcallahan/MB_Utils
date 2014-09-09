@@ -174,19 +174,81 @@ CopyArray() Sub
 ForEachInArray() Sub
 
 	Purpose: Interate through each string in a string array and a perform a command on each.
+	Parameters: (stringArray() As String, ByVal runCmd As String)
 
+
+
+
+SortArray() Sub
+
+	Purpose: Sort a string array in ascedning or descending alphabetical order
+	Parameters: (stringArray() As String, sortOrder As String)
+				[the array to sort, "ASC" or "DESC" for sort order]
+	Return value: none
+	Example:
+	
+		Dim nameList() As String
+		ReDim nameList(4)
+		nameList(1) = "Zack"
+		nameList(2) = "Adam"
+		nameList(3) = "Jane"
+		nameList(4) = "Lauren"
 		
-Declare Sub ForEachInArray(stringArray() As String, ByVal runCmd As String)
+		Call SortArray(nameList(), "ASC")
+		
+		Dim i As Integer						'output:		
+		For i = 1 To UBound(nameList())			'Adam
+			Print nameList(i)					'Jane
+		Next									'Lauren
+												'Zack
+		Call SortArray(nameList(), "DESC")
+		
+		For i = 1 To UBound(nameList())			'Zack
+			Print nameList(i)					'Lauren
+		Next									'Jane
+												'Adam
+	
+	
+ArrayToString() Function
+	
+	Purpose: concatenate all elements in a string array into a single string
+	Parameters: (ByVal stringArray() As String, delimiter As String)
+				[a string array, an optional delimiter - use an empty string "" for no delimiter]
+	Return value: String
+	Example:
+	
+		Dim nameList() As String
+		ReDim nameList(4)
+		nameList(1) = "Zack"
+		nameList(2) = "Adam"
+		nameList(3) = "Jane"
+		nameList(4) = "Lauren"
+		
+		Dim allNames As String
+		allNames = ArrayToString(nameList(), ";")
+		
+		Print allNames		'output:
+							'Zack;Adam;Jane;Lauren
+		
+		'using no delimiter
+		allNames = ArrayToString(nameList(), "")
+		
+	
+IndexOf() Function
+
+	Purpose:
+	Parameters: (stringArray() As String, ByVal searchString As String)
+	
+	Return value: Integer
+	Example:
+	
+			
 
 
 
 
 
-Declare Sub SortArray(stringArray() As String, sortOrder As String)
-
-Declare Function ArrayToString(stringArray() As String) As String
-Declare Function ArrayToDelimitedString(stringArray() As String, ByVal delimiter As String) As String
-Declare Function IndexOf(stringArray() As String, ByVal searchString As String) As Integer	
+Declare Function IndexOf As Integer	
 
 
 
