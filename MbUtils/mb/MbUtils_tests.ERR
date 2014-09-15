@@ -1,3 +1,0 @@
-(mbutils_tests.mb:34) Subroutine argument Int not defined. Found [(] while searching for [)]. 
-(mbutils_tests.mb:36) Invalid or missing argument list. 
-(mbutils_tests.mb:112) Subroutine call has too few arguments. 
