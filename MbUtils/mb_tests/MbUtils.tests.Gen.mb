@@ -1,0 +1,100 @@
+'MbUtils unit tests: ensure all subs and functions are working properly
+
+Include "MapBasic.Def"
+Include "MbUtils.def"
+
+
+'------------------------------------------------------------------------------------------------------------
+
+Sub DialogsTest
+
+'GetUserName() test
+Dim userName As String
+userName = GetUserName()
+
+Dim result As String
+result = Note2("MbUtils unit tests", "Windows user name = " + userName, "OK")
+Print "GetUserName() test complete"
+Print ""
+
+'Note2() test
+'all possible dialog box stlyes
+result = Note2("MbUtils unit tests", "Here's another dialog box", "OK")
+
+result = Note2("MbUtils unit tests", "Here's another dialog box", "OKCANCEL")
+Do case result
+	case "ok"
+		Print "you clicked ""OK"""
+	case "cancel"
+		Print "you clicked ""Cancel"""
+End Case
+
+result = Note2("MbUtils unit tests", "Here's another dialog box", "YESNO")
+Do case result
+	case "yes"
+		Print "you clicked ""Yes"""
+	case "no"
+		Print "you clicked ""No"""
+End Case
+
+result = Note2("MbUtils unit tests", "Here's another dialog box", "RETRYCANCEL")
+Do case result
+	case "retry"
+		Print "you clicked ""Retry"""
+	case "cancel"
+		Print "you clicked ""Cancel"""
+End Case
+
+result = Note2("MbUtils unit tests", "Here's another dialog box", "ABORTRETRYIGNORE")
+Do case result
+	case "abort"
+		Print "you clicked ""Abort"""
+	case "retry"
+		Print "you clicked ""Retry"""
+	case "ignore"
+		Print "you clicked ""Ignore"""
+End Case
+
+Print "Note2() test complete"
+Print ""
+
+
+'BrowseForFolder() test
+Dim savePath As String
+savePath = BrowseForFolder("C:\")
+Print "You browsed to this folder: " + savePath
+Print "BrowseForFolder() test complete"
+Print ""
+Print ""
+Print ""
+
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
+
+Sub ProgressbarTest
+
+Print "ProgressbarTest() test"
+Print "Progressbar On"
+Call QuickProgressbarOn("My Application", "Doing important stuff...")
+
+Call PauseProgram(4)
+
+Call QuickProgressbarOff()
+Print "Progressbar Off"
+
+Print "ProgressbarTest() test complete"
+Print ""
+Print ""
+Print ""
+
+
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
+
+
+
+

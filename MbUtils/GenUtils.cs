@@ -16,9 +16,16 @@ namespace MbUtils
 		[DllImport("User32.dll")]
 		private static extern IntPtr SetForegroundWindow(int hWnd);
 
-		public static void _SetMapInfowFront(int mihWnd)
+		public static void _SetMapInfowFront(int mihWnd, ref string errStr)
 		{
-			SetForegroundWindow(mihWnd);
+            try
+            {
+                SetForegroundWindow(mihWnd);
+            }
+            catch (Exception ex)
+            {
+                errStr = ex.ToString();
+            }
 		}
 
 		//sleep for t seconds

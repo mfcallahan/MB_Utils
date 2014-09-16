@@ -19,52 +19,7 @@ Declare Method _CreateFile Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal fi
 Declare Method _GetFileNameFromPath Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String) As String
 Declare Method _GetFileCreationTime Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String) As String
 Declare Method _GetFileLastWriteTime Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String) As String
-
 Declare Method _WriteToLogFile Class "MbUtils.Logger" Lib "MbUtils.dll" (ByVal logFilePath As String, ByVal logMsg As String, errStr As String)
-Declare Method _DumpException Class "MbUtils.Logger" Lib "MbUtils.dll" (ByVal dir As String, ByVal ex As String)
-
-Declare Method _Sleep Class "MbUtils.GenUtils" Lib "MbUtils.dll" (ByVal t As Integer, errStr As String)
-Declare Method _MarqueeProgressbarOn Class "MbUtils.GenUtils" Lib "MbUtils.dll" (ByVal dialogTitle As String, ByVal dialogText As String, errStr As String)
-Declare Method _MarqueeProgressbarOff Class "MbUtils.GenUtils" Lib "MbUtils.dll"(errStr As String)
-Declare Method _SetMapInfowFront Class "MbUtils.GenUtils" Lib "MbUtils.dll" (ByVal mihWnd As Integer)
-
-'Wrapped Win32 API functions - these do not need to be included or declared outside this file
-Declare Function _GetUserNameWin Lib "advapi32.dll" Alias "GetUserNameA" (lpBuffer As String, n As Integer) As Integer
-Declare Function _MessageBox Lib "user32" Alias "MessageBoxA" (ByVal hwnd As Integer, ByVal lpText As String, ByVal lpCaption As String, ByVal wType As Integer) As Integer
-Declare Function _SetCurrentDirectory Lib "kernel32" Alias "SetCurrentDirectoryA" (lpPathName As String) As Integer
-
-'Internal Subs/Functions - these do not need to be included or declared outside this file
-Declare Function _MbUtilErrorDialog(ByVal errStr As String) As String
-
-
-'-------------------------------------------------------------------------------------------------------------
-
-Function GetMbUtilsVer() As String
-
-GetMbUtilsVer = "1.0"
-
-End Function
-
-'-------------------------------------------------------------------------------------------------------------
-
-Function _MbUtilErrorDialog(ByVal errStr As String) As String
-
-Dim i as integer
-i = MB_ABORTRETRYIGNORE + MB_ICONSTOP
-i = _MessageBox(0, errStr, "MB_Utils Error", i)
-
-Do Case i
-	Case 3
-		_MbUtilErrorDialog = "abort"
-	Case 4
-		_MbUtilErrorDialog = "retry"
-	Case 5
-		_MbUtilErrorDialog = "ignore"
-End Case
-
-Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
-
-End Function
 
 
 '-------------------------------------------------------------------------------------------------------------
@@ -82,7 +37,7 @@ errStr = ""
 Call _CopyFile(filePathSource, filePathDest, errStr)
 
 'If errStr still has the empty value, no exception was thrown and the MbUtils sub/fucntion will exit without error.
-'If errStr does not have an empty value, an error has occured, handle it here. 
+'If errStr does not have an empty value an error has occured - handle it here. 
 If errStr <> "" Then
 
 	errStr = "CopyFile() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
@@ -98,7 +53,7 @@ If errStr <> "" Then
 		'If users aborts, terminate the program.
 		Case "abort"
 			End Program
-		'If user retries, go back to the retry: label at the top of this sub/fuicntion .
+		'If user retries, go back to the retry: label at the top of this sub/fuicntion.
 		Case "retry"
 			Goto retry
 		'If the users ignores, continue execution of the program.  Ignoring the error may produce unexpected resutls and/or additional errors.
@@ -401,6 +356,48 @@ End Sub
 
 '-------------------------------------------------------------------------------------------------------------
 
+Sub ListColumns(ByVal tableName As String, colArray() As String)
+
+Dim errStr As String
+
+retry:
+errStr = ""
+OnError Goto sub_error
+
+ReDim colArray(TableInfo(tableName, TAB_INFO_NCOLS))
+
+Dim i As Integer
+For i = 1 To TableInfo(tableName, TAB_INFO_NCOLS)
+	colArray(i) = ColumnInfo(tableName, "col" + i, COL_INFO_NAME)
+Next
+
+OnError Goto 0
+
+Exit Sub
+
+sub_error:
+
+errStr = "ListOpenTables() error: MbUtils.mbo " + Chr$(13) + Chr$(13) + Error$()
+
+Call _DumpException(ApplicationDirectory$(), errStr)
+
+Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+End Case
+
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
+
 Sub ListOpenTables(openTables() As String)
 
 Dim errStr As String
@@ -442,108 +439,6 @@ End Sub
 
 '-------------------------------------------------------------------------------------------------------------
 
-Sub PauseProgram(ByVal seconds As Integer)
-
-Dim errStr As String
-
-retry:
-errStr = ""
-
-Call _Sleep(seconds, errStr)
-
-If errStr <> "" Then
-
-	errStr = "PauseProgram() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
-
-	Call _DumpException(ApplicationDirectory$(), errStr)
-	
-	Dim userSel As String
-	userSel = _MbUtilErrorDialog(errStr)
-	
-	Do Case userSel
-		Case "abort"
-			End Program
-		Case "retry"
-			Goto retry
-		Case "ignore"
-			Exit Sub
-	End Case
-	
-End If
-
-End Sub
-
-'-------------------------------------------------------------------------------------------------------------
-
-Sub QuickProgressbarOn(ByVal dialogTitle As String, ByVal messageText As String)
-
-Dim errStr As String
-
-retry:
-Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
-errStr = ""
-
-OnError Goto sub_error
-'Call CreateFile(ApplicationDirectory$() + "pBarOn.mbutil")
-Run Program ApplicationDirectory$() + "MbUtils.Progressbar.exe """ + dialogTitle + """ """ + messageText + """"
-OnError Goto 0
-
-Exit Sub
-
-sub_error:
-errStr = "Call to QuickProgressbarOn() failed: MbUtils.mbo, MbUtils.dll" + Error$()
-Call _DumpException(ApplicationDirectory$(), errStr)
-	
-Dim userSel As String
-userSel = _MbUtilErrorDialog(errStr)
-
-Do Case userSel
-	Case "abort"
-		End Program
-	Case "retry"
-		Goto retry
-	Case "ignore"		
-		Exit Sub
-End Case
-
-End Sub
-
-'-------------------------------------------------------------------------------------------------------------
-
-Sub QuickProgressbarOff()
-
-Dim errStr As String
-
-retry:
-Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
-errStr = ""
-
-OnError Goto sub_error
-Call _DeleteFile(ApplicationDirectory$() + "pBarOn.mbutil", errStr)
-OnError Goto 0
-
-Exit Sub
-
-sub_error:
-errStr = "Call to QuickProgressbarOff() failed: MbUtils.mbo, MbUtils.dll" + Error$()
-Call _DumpException(ApplicationDirectory$(), errStr)
-	
-Dim userSel As String
-userSel = _MbUtilErrorDialog(errStr)
-
-Do Case userSel
-	Case "abort"
-		End Program
-	Case "retry"
-		Goto retry
-	Case "ignore"		
-		Exit Sub
-End Case
-
-End Sub
-
-'-------------------------------------------------------------------------------------------------------------
-
 Sub WriteToLogFile(ByVal logFilePath As String, ByVal logMsg As String)
 
 Dim errStr As String
@@ -580,13 +475,20 @@ Function BrowseForFolder(ByVal startPath As String) As String
 
 Dim errStr, result As String
 
+
 retry:
 errStr = ""
-Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND), errStr)
+
+If errStr <> "" Then
+	Goto func_error
+End If
+
 result = _FolderBrowserDialog(startPath, errStr)
 
 If errStr <> "" Then
-
+	
+	func_error:
 	errStr = "BrowseForFolder() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
 
 	Call _DumpException(ApplicationDirectory$(), errStr)
@@ -750,45 +652,6 @@ End Function
 
 '-------------------------------------------------------------------------------------------------------------
 
-Function GetUserName() As String
-
-Dim userName, result, errStr As String
-Dim n, nLen As Integer
-
-retry:
-errStr = ""
-OnError Goto function_error
-n = 255
-userName = Space$(n)
-nLen = _GetUserNameWin(userName, n)
-
-result = userName
-GetUserName = result
-OnError Goto 0
-
-Exit Function
-
-function_error:
-errStr = "Call to Win32 function _GetUserName() failed: MbUtils.mbo, MbUtils.dll" + Error$()
-Call _DumpException(ApplicationDirectory$(), errStr)
-	
-Dim userSel As String
-userSel = _MbUtilErrorDialog(errStr)
-
-Do Case userSel
-	Case "abort"
-		End Program
-	Case "retry"
-		Goto retry
-	Case "ignore"
-		GetUserName = ""
-		Exit Sub
-End Case
-
-End Function
-
-'-------------------------------------------------------------------------------------------------------------
-
 Function IsTableOpen(ByVal tableName As String) As Logical
 
 Dim result As Logical
@@ -813,112 +676,27 @@ End Function
 
 '-------------------------------------------------------------------------------------------------------------
 
-Function Note2(ByVal dialogTitle As String, ByVal dialogText As String, ByVal dialogType As String) As String
+Function IsColumnPresent(ByVal tableName As String, ByVal colName As String) As Logical
 
-' hWnd handle of the Parent Window - should be MapInfo
-' lptext message text
-' lpCaption dialog title
-' wType style flags
-' RETURNS:
-' 1 = OK
-' 2 = CANCEL
-' 3 = ABORT
-' 4 = RETRY
-' 5 = IGNORE
-' 6 = YES
-' 7 = NO
-' NOTE: Set hWnd to 0 [zero]
+Dim result As Logical
+result = False
 
-Dim errStr As String
-Dim i as integer
-
-retry:
-Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
-errStr = ""
-OnError Goto function_error
-
-Do Case dialogType
-	Case "OK"
-		i = MB_OK + MB_ICONINFORMATION
-	Case "OKCANCEL"
-		i = MB_OKCANCEL + MB_ICONQUESTION
-	Case "YESNO"
-		i = MB_YESNO + MB_ICONQUESTION
-	Case "YESNOCANCEL"
-		i = MB_YESNOCANCEL + MB_ICONQUESTION
-	Case "RETRYCANCEL"
-		i = MB_RETRYCANCEL + MB_ICONSTOP
-	Case "ABORTRETRYIGNORE"
-		i = MB_ABORTRETRYIGNORE + MB_ICONSTOP
-End Case
-
-i = _MessageBox(0, dialogText, dialogTitle, i)
-
-Do Case i
-	Case 1
-		Note2 = "ok"
-	Case 2
-		Note2 = "cancel"
-	Case 3
-		Note2 = "abort"
-	Case 4
-		Note2 = "retry"
-	Case 5
-		Note2 = "ignore"
-	Case 6
-		Note2 = "yes"
-	Case 7
-		Note2 = "no"
-End Case
-
-
-OnError Goto 0
-
-Exit Function 
-
-function_error:
-errStr = "Note2() error, Call to Win32 function _MessageBox() failed: MbUtils.mbo, MbUtils.dll" + Error$()
-Call _DumpException(ApplicationDirectory$(), errStr)
-Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
-Note errStr
-End Program
-
-End Function
-
-'-------------------------------------------------------------------------------------------------------------
-
-Function ReplaceInString(ByVal fullString As String, ByVal removeString As String, ByVal repalceString As String) As String
-
-Dim removeStringPos As Integer
-Dim startString As String
-Dim endString As String
-
-OnError Goto ErrorOccured
-
-Search_For_Replace:
-removeStringPos = InStr(1, LCase$(fullString),
-LCase$(removeString))
-If (removeStringPos > 0) Then
-    If (removeStringPos = 1) Then
-        fullString = repalceString + Mid$(fullString, Len(removeString)+1, Len(fullString) - Len(removeString))
-    ElseIf ((removeStringPos + Len(removeString) - 1) = Len(fullString)) Then
-        fullString = Left$(fullString, removeStringPos-1) + repalceString
-	Else
-		startString = Left$(fullString, removeStringPos-1)
-		endString = Mid$(fullString, removeStringPos + Len(removeString), Len(fullString) - (removeStringPos + Len(removeString) - 1))
-         fullString = startString + repalceString + endString
-    End If
-
-    Goto Search_For_Replace
+If NumTables() = 0 Then	
+	Goto return
 End If
 
-ReplaceInString = fullString
+Dim i As Integer
+For i = 1 to TableInfo(tableName, TAB_INFO_NCOLS)
+	If ColumnInfo(tableName, "COL" + i, COL_INFO_NAME) = colName Then
+		result = True
+		Goto return
+	End If
+Next
 
-Exit Function
-
-ErrorOccured:
-ReplaceInString = ""
+return:
+IsColumnPresent = result
 
 End Function
 
 '-------------------------------------------------------------------------------------------------------------
+

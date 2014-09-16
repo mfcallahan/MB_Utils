@@ -1,0 +1,166 @@
+'MbUtils unit tests: ensure all subs and functions are working properly
+
+Include "MapBasic.Def"
+Include "MbUtils.def"
+
+
+'-------------------------------------------------------------------------------------------------------------
+
+Sub LogTest
+
+Dim logFile As String
+logFile = ApplicationDirectory$() + "log.txt"
+
+If DoesFileExist(logFile) Then
+	Call DeleteFile(logFile)
+End If
+
+Call WriteToLogFile(logFile, "Test log file created.")
+Call WriteToLogFile(logFile, "Here is another line.")
+
+Dim result As String
+Call DeleteFile(logFile)
+
+Print "WriteToLogFile() complete"
+
+Print ""
+Print ""
+Print ""
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
+
+Sub FileTest
+
+'using relative paths in these examples
+
+Call CreateFile(ApplicationDirectory$() + "test_file.txt")
+Print "CreateFile() test complete"
+Print ""
+
+Call CopyFile(ApplicationDirectory$() + "test_file.txt", ApplicationDirectory$() + "test_file_COPY.txt")
+Print "CopyFile() test complete"
+Print ""
+
+'Purposely throw an error here to demonstrate MbUtils error handing by attempting to copy a file that doesn't exist
+Call CopyFile(ApplicationDirectory$() + "h7hdg9872aif82.vgs", ApplicationDirectory$() + "h7hdg9872aif82.vgs.copy")
+Print "CopyFile() test error"
+Print ""
+
+
+Dim created As String
+created = GetFileCreationTime(ApplicationDirectory$() + "test_file.txt")
+Print "test_file.txt creation time = " + created
+
+Dim modified As String
+modified = GetFileLastWriteTime(ApplicationDirectory$() + "test_file.txt")
+Print "test_file.txt last write time = " + modified
+
+Call DeleteFile(ApplicationDirectory$() + "test_file.txt")
+Call DeleteFile(ApplicationDirectory$() + "test_file_COPY.txt")
+Print "DeleteFile() test complete"
+Print ""
+
+'pass param with or without slash at end of path, doesn't matter.  Any sub or function taking a path only can be passed
+'a string representing the path with or without the slash at the end.
+Dim fileList(), fileList2() As String
+
+'using absolute paths in this section
+
+'You can pass a string representing the folder path with or without a trailing slash 
+
+Call GetFiles("C:\Windows\Temp", fileList(), "*.*", False)
+'same result as above:
+Call GetFiles("C:\Windows\Temp\", fileList2(), "*.*", False)
+
+Dim i As Integer
+For i = 1 To UBound(fileList())
+	Print fileList(i)
+Next
+
+'same result as above:
+For i = 1 To UBound(fileList2())
+	Print fileList2(i)
+Next
+
+Print ""
+Print "GetFiles() test complete"
+Print ""
+
+Dim filePresent As Logical
+filePresent = DoesFileExist(fileList(1))
+Print "DoesFileExist() = " + Str$(filePresent)
+Print ""
+
+Call CreateFolder("C:\Windows\Temp\test_folder")
+Print "CreateFolder() test complete"
+Print ""
+
+Call CopyFolder("C:\Windows\Temp\test_folder", "C:\Windows\Temp\test_folder_copy")
+Print "CopyFolder() test complete"
+Print ""
+
+Dim folderPresent As Logical
+folderPresent = DoesFolderExist("C:\Windows\Temp\test_folder_copy")
+Print "DoesFolderExist() = " + Str$(folderPresent)
+Print ""
+
+Call DeleteFolder("C:\Windows\Temp\test_folder")
+Call DeleteFolder("C:\Windows\Temp\test_folder_copy")
+Print "DeleteFolder() test complete"
+Print ""
+
+Dim folderList() As String
+
+Call GetFolders("C:\Windows\Temp", folderList())
+
+For i = 1 To UBound(folderList())
+	Print folderList(i)
+Next
+
+Print "GetFolders() test complete"
+Print ""
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
+
+Sub TableTest
+
+If IsTableOpen("test_table") Then
+	Close Table test_table
+End If
+
+Create Table "test_table" (Field1 Char(10),Field2 Char(10),Field3 Char(10)) File "C:\Windows\Temp\test_table.tab" TYPE NATIVE Charset "WindowsLatin1"
+Create Map For test_table CoordSys Earth Projection 1, 0
+
+Dim testTableFullPath As String
+testTableFullPath = TableInfo(test_table, TAB_INFO_TABFILE)
+
+If IsTableOpen("test_table") Then
+	Print "test_table is open"
+Print ""
+End If
+
+Dim openTables() As String
+Call ListOpenTables(openTables())
+
+Dim i As Integer
+For i = 1 to UBound(openTables())
+	Print openTables(i)
+Next
+
+Print "ListOpenTables() test complete"
+Print ""
+
+Call KillTable(testTableFullPath)
+Print "KillTable() test complete"
+Print ""
+
+
+End Sub
+
+'-------------------------------------------------------------------------------------------------------------
+
+
