@@ -1,6 +1,7 @@
 Include "MapBasic.Def"
 Include "MbUtils.def"
 
+
 '-------------------------------------------------------------------------------------------------------------
 
 Sub ClearArray(stringArray() As String, ByVal clearValue As String)
@@ -43,7 +44,7 @@ End Sub
 
 '-------------------------------------------------------------------------------------------------------------
 
-Sub CopyArray(ByVal sourceArray() As String, destinationArray() As String)
+Sub CopyArray(sourceArray() As String, destinationArray() As String)
 
 Dim errStr As String
 
@@ -87,7 +88,9 @@ End Sub
 
 '-------------------------------------------------------------------------------------------------------------
 
-Sub ForEachInArray(stringArray() As String, ByVal runCmds() As String As String)
+'TODO: complete this sub
+
+Sub ForEachInArray(stringArray() As String, runCmds() As String)
 
 Dim errStr As String
 
@@ -188,7 +191,7 @@ End Sub
 
 '-------------------------------------------------------------------------------------------------------------
 
-Function ArrayToString(ByVal stringArray() As String, delimiter As String) As String
+Function ArrayToString(stringArray() As String, delimiter As String) As String
 
 Dim errStr, result As String
 
@@ -209,7 +212,7 @@ Do Case delimiter
 	Case Else
 	
 		For i = 1 To UBound(stringArray())
-			If i = UBound(stringArray())
+			If i = UBound(stringArray()) Then
 				result = result + stringArray(i)
 			Else
 				result = result + stringArray(i) + delimiter
@@ -246,7 +249,9 @@ End Function
 
 '-------------------------------------------------------------------------------------------------------------
 
-Function IndexOf(ByVal stringArray() As String, ByVal delimiter As String) As Integer
+'TODO: convert to sub, pass array by ref, return all indicies at which searchValue is found
+
+Function IndexOf(stringArray() As String, ByVal searchValue As String) As Integer
 
 Dim errStr, result As String
 
@@ -260,9 +265,10 @@ result = 0
 Dim i As Integer
 For i = 1 To UBound(stringArray())
 	
-	If Like(stringArray(i) , "%" + searchValue + "%", "")
-	result = i
-	Exit For
+	If Like(stringArray(i) , "%" + searchValue + "%", "") Then
+		result = i
+		Exit For
+	End If
 		
 Next
 

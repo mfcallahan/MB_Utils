@@ -2,19 +2,18 @@ Include "MapBasic.Def"
 Include "MbUtils.def"
 
 'Wrapped .NET methods - these do not need to be included or declared outside this file
-Declare Method _DumpException Class "MbUtils.Logger" Lib "MbUtils.dll" (ByVal dir As String, ByVal ex As String)
-
 Declare Method _Sleep Class "MbUtils.GenUtils" Lib "MbUtils.dll" (ByVal t As Integer, errStr As String)
 Declare Method _MarqueeProgressbarOn Class "MbUtils.GenUtils" Lib "MbUtils.dll" (ByVal dialogTitle As String, ByVal dialogText As String, errStr As String)
 Declare Method _MarqueeProgressbarOff Class "MbUtils.GenUtils" Lib "MbUtils.dll"(errStr As String)
-Declare Method _SetMapInfowFront Class "MbUtils.GenUtils" Lib "MbUtils.dll" (ByVal mihWnd As Integer)
+Declare Method _SetMapInfowFront Class "MbUtils.GenUtils" Lib "MbUtils.dll" (ByVal mihWnd As Integer, errStr As String)
+Declare Method _DeleteFile Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String)
+
 
 'Wrapped Win32 API functions - these do not need to be included or declared outside this file
 Declare Function _GetUserNameWin Lib "advapi32.dll" Alias "GetUserNameA" (lpBuffer As String, n As Integer) As Integer
 Declare Function _MessageBox Lib "user32" Alias "MessageBoxA" (ByVal hwnd As Integer, ByVal lpText As String, ByVal lpCaption As String, ByVal wType As Integer) As Integer
 
-'Internal Subs/Functions - these do not need to be included or declared outside this file
-Declare Function _MbUtilErrorDialog(ByVal errStr As String) As String
+
 
 
 '-------------------------------------------------------------------------------------------------------------
@@ -42,7 +41,7 @@ Do Case i
 		_MbUtilErrorDialog = "ignore"
 End Case
 
-Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND), errStr)
 
 End Function
 
@@ -88,7 +87,7 @@ Set ProgressBars Off
 Dim errStr As String
 
 retry:
-Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND), errStr)
 errStr = ""
 
 OnError Goto sub_error
@@ -124,7 +123,7 @@ Set ProgressBars On
 Dim errStr As String
 
 retry:
-Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND), errStr)
 errStr = ""
 
 OnError Goto sub_error
@@ -212,7 +211,7 @@ Dim errStr As String
 Dim i As integer
 
 retry:
-Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND), errStr)
 errStr = ""
 OnError Goto function_error
 
@@ -260,7 +259,7 @@ Exit Function
 function_error:
 errStr = "Note2() error, Call to Win32 function _MessageBox() failed: MbUtils.Gen.mbo, MbUtils.dll" + Error$()
 Call _DumpException(ApplicationDirectory$(), errStr)
-Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND), errStr)
 Note errStr
 End Program
 

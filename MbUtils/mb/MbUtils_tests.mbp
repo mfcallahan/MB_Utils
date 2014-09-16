@@ -1,4 +1,0 @@
-[LINK]
-	Application = MbUtils_run_tests.mbx
-		Module = MbUtils.mbo
-		Module = MbUtils_tests.mbo

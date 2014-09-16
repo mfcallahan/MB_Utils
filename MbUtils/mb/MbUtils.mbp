@@ -1,6 +1,6 @@
 [LINK]
 	Application=MbUtils.MBO
-		Module=MbUtils.MBO
+		Module=MbUtils.Gen.MBO
 		Module=MbUtils.Array.MBO
 		Module=MbUtils.File.MBO
 		Module=MbUtils.String.MBO

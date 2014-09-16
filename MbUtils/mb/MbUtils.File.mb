@@ -20,7 +20,7 @@ Declare Method _GetFileNameFromPath Class "MbUtils.FileUtils" Lib "MbUtils.dll" 
 Declare Method _GetFileCreationTime Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String) As String
 Declare Method _GetFileLastWriteTime Class "MbUtils.FileUtils" Lib "MbUtils.dll" (ByVal dir As String, errStr As String) As String
 Declare Method _WriteToLogFile Class "MbUtils.Logger" Lib "MbUtils.dll" (ByVal logFilePath As String, ByVal logMsg As String, errStr As String)
-Declare Method _DumpException Class "MbUtils.Logger" Lib "MbUtils.dll" (ByVal dir As String, ByVal ex As String)
+
 
 '-------------------------------------------------------------------------------------------------------------
 
@@ -475,13 +475,20 @@ Function BrowseForFolder(ByVal startPath As String) As String
 
 Dim errStr, result As String
 
+
 retry:
 errStr = ""
-Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND))
+Call _SetMapInfowFront(WindowInfo(WIN_MAPINFO, WIN_INFO_WND), errStr)
+
+If errStr <> "" Then
+	Goto func_error
+End If
+
 result = _FolderBrowserDialog(startPath, errStr)
 
 If errStr <> "" Then
-
+	
+	func_error:
 	errStr = "BrowseForFolder() error: MbUtils.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
 
 	Call _DumpException(ApplicationDirectory$(), errStr)

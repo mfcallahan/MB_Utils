@@ -11,19 +11,19 @@ Declare Function Note2(ByVal dialogTitle As String, ByVal dialogText As String, 
 'Array Utils
 Declare Sub ClearArray(stringArray() As String, ByVal clearValue As String)
 Declare Sub CopyArray(sourceArray() As String, destinationArray() As String)
-Declare Sub ForEachInArray(stringArray() As String, ByVal runCmds() As String As String)
+Declare Sub ForEachInArray(stringArray() As String, runCmds() As String)
 Declare Sub SortArray(stringArray() As String, sortOrder As String)
 
-Declare Function ArrayToString(ByVal stringArray() As String, delimiter As String) As String
+Declare Function ArrayToString(stringArray() As String, delimiter As String) As String
 Declare Function IndexOf(stringArray() As String, ByVal searchString As String) As Integer
 
 
 'String Utils
+Declare Sub InsertIntoString(fullString As String, ByVal insertString As String, ByVal insertAtIndex As String)
 Declare Sub SplitString(ByVal stringToSplit As String, ByVal delimiter As String, splitStrings() As String)
 
 Declare Function CountCharsInString(ByVal searchString As String, ByVal findChar As String) As Integer
 Declare Function CountWordsInString(ByVal searchString As String, ByVal findString As String) As Integer
-Declare Function InsertIntoString(ByVal fullString As String, ByVal insertString As String, ByVal insertAtIndex As String)
 Declare Function ReplaceInString(ByVal fullString As String, ByVal removeString As String, ByVal repalceString As String) As String
 Declare Function IsStringNumericValue(ByVal stringToSearch As String) As Logical
 Declare Function StringStartsWith(ByVal stringToSearch As String, searchString As String, ByVal caseSensitive As Logical) As Logical
@@ -59,6 +59,11 @@ Declare Sub ListOpenTables(openTables() As String)
 Declare Function IsTableOpen(ByVal tableName As String) As Logical
 Declare Function IsColumnPresent(ByVal tableName As String, ByVal colName As String) As Logical
 
+
+'Internal Subs/Functions/Methods - these do not need to be included or declared outside this file
+Declare Function _MbUtilErrorDialog(ByVal errStr As String) As String
+
+Declare Method _DumpException Class "MbUtils.Logger" Lib "MbUtils.dll" (ByVal dir As String, ByVal ex As String)
 
 
 'Definitions for _MessageBox() user32 Function

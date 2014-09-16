@@ -3,11 +3,11 @@ Include "MbUtils.def"
 
 'Wrapped .NET methods - these do not need to be included or declared outside this file
 Declare Method _SplitString Class "MbUtils.StringUtils" Lib "MbUtils.dll" (ByVal stringToSplit As String, ByVal delimiter As String, splitStrings() As String, errStr As String)
-Declare Method _CountDelimiterOccurances Class "MbUtils.StringUtils" Lib "MbUtils.dll" (ByVal stringToSearch As String, ByVal delimiter As String, errStr As String)
-Declare Method _CountWordsInString Class "MbUtils.StringUtils" Lib "MbUtils.dll" (ByVal stringToSearch As String, ByVal findSring As String, errStr As String)
-Declare Method _IsStringNumericValue Class "MbUtils.StringUtils" Lib "MbUtils.dll" (ByVal stringToSearch As String, errStr As String)
-Declare Method _StringEndsWith Class "MbUtils.StringUtils" Lib "MbUtils.dll" (ByVal stringToSearch As String, ByVal findSring As String, ByVal ignoreCase As Logical, errStr As String)
-Declare Method _StringStartsWith Class "MbUtils.StringUtils" Lib "MbUtils.dll" (ByVal stringToSearch As String, ByVal findSring As String,  ByVal ignoreCase As Logical, errStr As String)
+Declare Method _CountDelimiterOccurances Class "MbUtils.StringUtils" Lib "MbUtils.dll" (ByVal stringToSearch As String, ByVal delimiter As String, errStr As String) As Integer
+Declare Method _CountWordsInString Class "MbUtils.StringUtils" Lib "MbUtils.dll" (ByVal stringToSearch As String, ByVal findSring As String, errStr As String) As Integer
+Declare Method _IsStringNumericValue Class "MbUtils.StringUtils" Lib "MbUtils.dll" (ByVal stringToSearch As String, errStr As String) As Logical
+Declare Method _StringEndsWith Class "MbUtils.StringUtils" Lib "MbUtils.dll" (ByVal stringToSearch As String, ByVal findSring As String, ByVal ignoreCase As Logical, errStr As String) As Logical
+Declare Method _StringStartsWith Class "MbUtils.StringUtils" Lib "MbUtils.dll" (ByVal stringToSearch As String, ByVal findSring As String,  ByVal ignoreCase As Logical, errStr As String) As Logical
 
 '-------------------------------------------------------------------------------------------------------------
 
@@ -35,25 +35,29 @@ ReDim splitStrings(n)
 Call _SplitString(stringToSplit, delimiter, splitStrings(), errStr)
 
 If errStr <> "" Then
-	
-	error_dialog:
-	errStr = "SplitString() error: MbUtils.String.mbo " + Chr$(13) + Chr$(13) + errStr
-
-	Call _DumpException(ApplicationDirectory$(), errStr)
-
-	Dim userSel As String
-		userSel = _MbUtilErrorDialog(errStr)
-		
-		Do Case userSel
-			Case "abort"
-				End Program
-			Case "retry"
-				Goto retry
-			Case "ignore"
-				Exit Sub
-		End Case
-	
+	Goto error_dialog
 End If
+
+Exit Sub
+
+error_dialog:
+errStr = "SplitString() error: MbUtils.String.mbo " + Chr$(13) + Chr$(13) + errStr
+
+Call _DumpException(ApplicationDirectory$(), errStr)
+
+Dim userSel As String
+	userSel = _MbUtilErrorDialog(errStr)
+	
+	Do Case userSel
+		Case "abort"
+			End Program
+		Case "retry"
+			Goto retry
+		Case "ignore"
+			Exit Sub
+	End Case
+
+
 
 End Sub
 
@@ -74,7 +78,8 @@ End If
 CountCharsInString =  _CountDelimiterOccurances(stringToSearch, findChar, errStr)
 
 If errStr <> "" Then
-
+	
+	error_dialog:
 	errStr = "CountCharsInString() error: MbUtils.String.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
 
 	Call _DumpException(ApplicationDirectory$(), errStr)
@@ -130,22 +135,22 @@ End Function
 
 '-------------------------------------------------------------------------------------------------------------
 
-Function InsertIntoString(ByVal fullString As String, ByVal insertString As String, ByVal insertAtIndex As String)
+Sub InsertIntoString(fullString As String, ByVal insertString As String, ByVal insertAtIndex As String)
 
 Dim errStr As String
 
 retry:
 errStr = ""
 
-OnError Goto func_error
+OnError Goto sub_error
 
-InsertIntoString = Left$(fullString, (insertAtIndex - 1)) + insertString + Right$(fullString, (Len(fullString) - insertAtIndex))
+fullString = Left$(fullString, (insertAtIndex - 1)) + insertString + Right$(fullString, (Len(fullString) - insertAtIndex))
 
 OnError Goto 0
 
-Exit Function
+Exit Sub
 
-func_error:
+sub_error:
 
 errStr = "InsertIntoString() error: MbUtils.String.mbo, MbUtils.dll " + Chr$(13) + Chr$(13) + errStr
 
@@ -163,7 +168,7 @@ Do Case userSel
 		Exit Sub
 End Case
 
-End Function
+End Sub
 
 '-------------------------------------------------------------------------------------------------------------
 
