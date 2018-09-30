@@ -1,5 +1,4 @@
-MB_Utils: 
-![MapInfo](https://i.imgur.com/9D4ZVPX.png "Logo Title Text 1")
+![MapInfo](https://i.imgur.com/9D4ZVPX.png "MapInfo")
 
 =======
 
